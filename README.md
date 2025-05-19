@@ -1,2 +1,10 @@
 # PDS-class-intersections
-GAP code to generate all conjugacy class intersection sizes |h^G \cap D| in a nonabelian group G.
+
+This repository is dedicated to searching for partial difference sets (PDSs) inside of a nonabelian group G. If you use this code in future work, please use the following MathJAX citation (the arxiv paper has yet to be uploaded, so no citation for now).
+
+PDSIntersectionsAlgorithm consists of GAP code which intakes a parameter set (v, k, \lambda, \mu) and returns, for a list of conjugacy class representations h_1, ..., h_n, a list s_1, ..., s_n of integers so that s_i is the order of the intersection |h_i^G \cap D|, if D is a PDS inside G. To use this code, clone the repository and run gap in the directory PDSIntersectionsAlgorithm. Write `Read("PDSClassIntersections.g");` and then `PDSClassIntersections(v, k, \lambda, \mu);` to return the conjugacy class intersections of a possible (v, k, \lambda, \mu) PDS.
+
+
+The directory HillClimbPDS consists of a hill climb algorithm first used by Brady in the following "Andrew Brady. New Strongly Regular Graphs Found via Local Search for Partial Difference Sets. Electron. J. Combin., 32(1):Paper No. 1.24, 2025. doi:10.37236/13296." Please refer to this paper for a discussion of the algorithm used. You can also see his code at the GitHub repo https://github.com/42ABC/PDS_local.git. Our own code is a slightly modified version which takes in not just the group and parameter set, but also a vector `vec` such that `vec[i]` is the integer s_i returned by PDSIntersectionsAlgorithm. This vector guarantees that the PDSs we search for has the proper conjugacy class intersection size. Note! This code is not as well optimized as it could be. 
+
+Inside HillClimbPDS is also folder entitled PDSSearchResults. This contains a list of all the searches we have done. Each file in the folder has the following format `SmallGrpSize_SmallGrpId_v_k_\lambda_\mu_vec[1]_vec[2]_..._vec[n].txt`, which gives the group size and Id pair, the parameter set for the corresponding possible PDS, and the `vec` intersection sizes s_1, ..., s_n. This file lists every tenth trial, and how good the best candidate PDS is at that point in the trial, by calculating the l_2 norm of D^2 - 1k - \lambda D - \mu (G - D - 1).
