@@ -1,6 +1,7 @@
 Read("PDS.g");
 Read("GroupRing.g");
 
+#Please refer to the following paper for the origin of this code: Andrew Brady. New Strongly Regular Graphs Found via Local Search for Partial Difference Sets. Electron. J. Combin., 32(1):Paper No. 1.24, 2025. doi:10.37236/13296.
 
 SwapG := function(convolution_table, D, g, g_inverse)
     local order, g_term, gD_Dg, i, Dg, gD;
