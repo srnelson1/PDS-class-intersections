@@ -327,10 +327,6 @@ PartitionClassIntersectionsList := function(partition_positions, partition_stack
 
             while not NextClassIntersection(updated_partial_comb_cl_intersections, partition_ceiling, partition_stack_sizes[i], comb_cl_intersections_length) = "Done" do #Iterate through updated_partial_comb_cl_intersections
                 Append(updated_partial_comb_cl_intersections_list, [ShallowCopy(updated_partial_comb_cl_intersections)]);
-
-                if Length(updated_partial_comb_cl_intersections_list) > 5000000 then
-                    return "Space Limits Exceeded";
-                fi;
             od;
         od;
 
@@ -512,10 +508,6 @@ AllClassIntersections := function(group_param_rec, prelim_cl_intersections, modu
     
     for partition_stacks_sizes in partition_stacks_sizes_list do #Iterate over partition_stack_sizes and build all comb_cl_intersections for each partition_stack_sizes
         partial_comb_cl_intersections_list := PartitionClassIntersectionsList(partition_positions, partition_stacks_sizes, comb_moduli, comb_ceiling, comb_cl_intersections_length);
-
-        if partial_comb_cl_intersections_list = "Space Limits Exceeded" then
-            return "Space Limits Exceeded";
-        fi;
 
         partial_comb_cl_intersections_list := FilterClassIntersections(comb_char_mat, filtration_mat, partial_comb_cl_intersections_list, comb_prelim_cl_intersections, theta1, theta2);
         Append(comb_cl_intersections_list, partial_comb_cl_intersections_list);
