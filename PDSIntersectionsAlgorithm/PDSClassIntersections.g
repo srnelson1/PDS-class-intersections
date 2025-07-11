@@ -3,16 +3,16 @@ Read("SearchClassIntersections.g");
 Read("PreliminaryIntersections.g");
 
 
-CharMatrix := function(char_table) #Converts group or character table into a matrix of characters
+CharMatrix := function(irr) #Converts group or character table into a matrix of characters
     local row, i;
-    return List(Irr(char_table), row -> List(row, i -> i)); #return matrix of characters.
+    return List(irr, row -> List(row, i -> i)); #return matrix of characters.
 end;
 
 #Finds possible PDS Class Intersection of a particular group.
 PDSClassIntersectionsGroup := function(group, v, k, lambda, mu)
     local
     group_param_rec,
-    char_table,
+    char_table, irr,
     prelim_result, final_result,
     prelim_cl_intersections, prelim_cl_intersections_list, moduli,
     cl_intersections_list,
@@ -23,12 +23,14 @@ PDSClassIntersectionsGroup := function(group, v, k, lambda, mu)
     fi;
 
     char_table := CharacterTable(group);
+    irr := Irr(char_table);
 
     group_param_rec := rec( #This record contains all the necessary information about the group and possible pds.
         group := group,
         char_table := char_table,
-        char_mat := CharMatrix(char_table),
+        char_mat := CharMatrix(irr),
         cls := ConjugacyClasses(char_table),
+        irr := irr,
         v := v,
         k := k,
         theta1 := (lambda - mu + RootInt((lambda - mu)^2 + 4*(k - mu), 2))/2,

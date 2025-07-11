@@ -446,12 +446,54 @@ FilterInverseClasses := function(cl_intersections_list, index_inv_cls_list, ord_
     return filtered_cl_intersections_list;
 end;
 
+VerifyCosetIntersections := function(cl_intersections, group, irr, cls, v, k)
+    local
+    theta_alpha,
+    ln_char_lst, char,
+    N,
+    cosets, coset_size, cl,
+    cl_coset_subset_lst, subset_cls,
+    i;
+
+    ln_char_lst := Filtered( irr, char -> char[1] = 1);
+    theta_alpha := cl_intersections * AsList(ln_char_lst[2]);
+
+
+    N := Intersection( List(ln_char_lst, char -> KernelOfCharacter(char)));
+    cosets := RightCosets(group, N);
+
+    cl_coset_subset_lst := [];
+
+    for i in [1..Length(cosets)] do
+        subset_cls := Filtered(cls, cl -> IsSubset(cosets[i], cl));
+        cl_coset_subset_lst[i] := List(subset_cls, cl -> Position(cls, cl));
+    od;
+
+    coset_size := (k - theta_alpha) * (Size(N)/v);
+
+    if not IsInt(coset_size) then
+        return false;
+    fi;
+
+    for i in [2..Length(cosets)] do
+        if Sum(cl_intersections{cl_coset_subset_lst[i]}) > coset_size then
+            return false;
+        fi;
+    od;
+
+    return true;
+end;
+
+FilterCosetIntersections := function(cl_intersections_list, group, irr, cls, v, k)
+    return Filtered(cl_intersections_list, cl_intersections -> VerifyCosetIntersections(cl_intersections, group, irr, cls, v, k));
+end;
+
 ##############################################################################################################
 #####ALL CLASS INTERSECTIONS##################################################################################
 
 AllClassIntersections := function(group_param_rec, prelim_cl_intersections, moduli)
     local
-    char_table, char_mat, v, theta1, theta2,
+    group, char_table, irr, cls, char_mat, v, k, theta1, theta2,
     stack_size,
     ceiling,
     index_inv_cls_list,
@@ -469,9 +511,13 @@ AllClassIntersections := function(group_param_rec, prelim_cl_intersections, modu
     x, #dummy_variable
     i, j; #iterator
 
+    group := group_param_rec.group;
+    cls := group_param_rec.cls;
     char_table := group_param_rec.char_table;
+    irr := group_param_rec.irr;
     char_mat := group_param_rec.char_mat;
     v := group_param_rec.v;
+    k := group_param_rec.k;
     theta1 := group_param_rec.theta1;
     theta2 := group_param_rec.theta2;
 
@@ -523,6 +569,7 @@ AllClassIntersections := function(group_param_rec, prelim_cl_intersections, modu
 
     cl_intersections_list := UncombineInverseClasses(comb_cl_intersections_list, index_inv_cls_list);
     cl_intersections_list := FilterInverseClasses(cl_intersections_list, index_inv_cls_list, ord_2_cls_list);
+    cl_intersections_list := FilterCosetIntersections(cl_intersections_list, group, irr, cls, v, k);
 
 
     return cl_intersections_list;
