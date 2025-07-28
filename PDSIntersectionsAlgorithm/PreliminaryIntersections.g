@@ -188,7 +188,7 @@ end;
 #such that all values in prelim_intersections satisfy [NS] 4.1 (Thesis 6.1) and [NS] 3.8 (Thesis 5.11).
 #This function also returns a secondary list, moduli, consisting of the largest modulus x such that if c is the size of the
 #intersection of the ith conjugacy class with a possible PDS, then prelim_intersections[i] = c mod x.
-PreliminaryIntersections := function(group_param_rec)
+PreliminaryIntersections := function(pds_data)
     local
     group, char_table, char_mat, cls, v, k, theta1, theta2,
     moduli, mod_cl_intersections,
@@ -198,14 +198,14 @@ PreliminaryIntersections := function(group_param_rec)
     dummy_list, x, #dummy variables
     i;
 
-    group := group_param_rec.group;
-    char_table := group_param_rec.char_table;
-    char_mat := group_param_rec.char_mat;
-    cls := group_param_rec.cls;
-    v := group_param_rec.v;
-    k := group_param_rec.k;
-    theta1 := group_param_rec.theta1;
-    theta2 := group_param_rec.theta2;
+    group := pds_data.group;
+    char_table := pds_data.char_table;
+    char_mat := pds_data.char_mat;
+    cls := pds_data.cls;
+    v := pds_data.v;
+    k := pds_data.k;
+    theta1 := pds_data.theta1;
+    theta2 := pds_data.theta2;
 
     x := ModularClassIntersections(char_table, v, k, theta1, theta2);
     mod_cl_intersections := x.mod_cl_intersections;

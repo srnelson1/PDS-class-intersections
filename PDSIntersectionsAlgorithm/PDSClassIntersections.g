@@ -11,7 +11,7 @@ end;
 #Finds possible PDS Class Intersection of a particular group.
 PDSClassIntersectionsGroup := function(group, v, k, lambda, mu)
     local
-    group_param_rec,
+    pds_data,
     char_table, irr,
     prelim_result, final_result,
     prelim_cl_intersections, prelim_cl_intersections_list, moduli,
@@ -25,7 +25,7 @@ PDSClassIntersectionsGroup := function(group, v, k, lambda, mu)
     char_table := CharacterTable(group);
     irr := Irr(char_table);
 
-    group_param_rec := rec( #This record contains all the necessary information about the group and possible pds.
+    pds_data := rec( #This record contains all the necessary information about the group and possible pds.
         group := group,
         char_table := char_table,
         char_mat := CharMatrix(irr),
@@ -38,7 +38,7 @@ PDSClassIntersectionsGroup := function(group, v, k, lambda, mu)
     );
 
     final_result := rec();
-    prelim_result := PreliminaryIntersections(group_param_rec);
+    prelim_result := PreliminaryIntersections(pds_data);
     moduli := prelim_result.moduli;
     cl_intersections_list := [];
 
@@ -47,7 +47,7 @@ PDSClassIntersectionsGroup := function(group, v, k, lambda, mu)
 
 
         for prelim_cl_intersections in prelim_cl_intersections_list do
-            x := AllClassIntersections(group_param_rec, prelim_cl_intersections, moduli);
+            x := AllClassIntersections(pds_data, prelim_cl_intersections, moduli);
             Append(cl_intersections_list, x );
         od;
     else
