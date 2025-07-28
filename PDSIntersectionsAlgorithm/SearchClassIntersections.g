@@ -122,7 +122,7 @@ UncombineInverseClasses := function(cl_ints_lst, idx_inv_cls_lst)
 
     for i in [1..Length(cl_ints_lst)] do
         comb_cl_ints := cl_ints_lst[i];
-        cl_ints := EmptyPlst(num_cls);
+        cl_ints := EmptyPlist(num_cls);
 
         for j in [1..Length(idx_inv_cls_lst)] do
             idx_inv_cls := idx_inv_cls_lst[j];
