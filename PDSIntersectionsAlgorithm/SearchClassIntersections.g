@@ -92,10 +92,6 @@ end;
 SelfInverseCombModuli := function(comb_prelim_cl_ints, comb_moduli, idx_inv_cls_lst, ord_2_cls_lst, v)
 	local i;
 
-	if v mod 2 = 1 then
-		return comb_moduli;
-	fi;
-
 	for i in [1..Length(idx_inv_cls_lst)] do
 		if (idx_inv_cls_lst[i][1] = idx_inv_cls_lst[i][2]) and (ord_2_cls_lst[i] = false) then
 			if comb_prelim_cl_ints[i] mod 2 = 0 and comb_moduli[i] mod 2 = 1 then 
