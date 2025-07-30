@@ -75,15 +75,15 @@ end;
 
 #Checks if group is valid for given params using Theorem 3.12
 IsValidGroup := function(group, v, k, lambda, mu)
-    local sqrt_delta, theta1, theta2,
+	local sqrt_delta, theta1, theta2,
 	pi_1, pi_2,
 	size_lin_group,
 	cp_lin_gp_primes1, cp_lin_gp_primes2,
 	p;
 
-    sqrt_delta := Root((lambda - mu)^2 + 4*(k - mu), 2);
-    theta1 := (lambda - mu + sqrt_delta)/2;
-    theta2 := (lambda-mu - sqrt_delta)/2;
+	sqrt_delta := Root((lambda - mu)^2 + 4*(k - mu), 2);
+	theta1 := (lambda - mu + sqrt_delta)/2;
+	theta2 := (lambda-mu - sqrt_delta)/2;
 	size_lin_group := v/Size(DerivedSubgroup(group));
 
 	pi_1 := Product( Filtered(FactorsInt(k-theta1), p -> sqrt_delta mod p <> 0) ); #FactorsInt(n) returns only prime values so long as n < 10^18
@@ -105,7 +105,7 @@ IsValidGroup := function(group, v, k, lambda, mu)
 		fi;
 	fi;
 
-    return true;
+	return true;
 end;
 
 FindCoprimeGroups := function(v, k, lambda, mu)

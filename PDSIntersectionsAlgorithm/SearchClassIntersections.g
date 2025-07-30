@@ -72,12 +72,14 @@ end;
 #		   updtd_partl_cmb_cl_ints[j] = partl_cmb_cl_ints[j] whenever j is not in partn_posns[i].
 #
 #	   Replace cmb_cl_ints_sublst with the lst of updtd_partl_cmb_cl_ints
-PartitionClassIntersectionsList := function(partn_posns, partn_stack_sizes, cmb_moduli, ceiling, cmb_cl_ints_len)
+PartitionClassIntersectionsList := function(partn_posns, partn_stack_sizes, cmb_moduli, cmb_ceiling, cmb_cl_ints_len)
 	local
 	cmb_cl_ints_sublst, updtd_cmb_cl_ints_sublst,
 	partl_cmb_cl_ints, updtd_partl_cmb_cl_ints,
 	partn_ceiling, zeroes,
 	i;
+
+	Print("partn_posns: ", partn_posns, "\npartn_stack_sizes: ", partn_stack_sizes, "\ncmb_moduli: ", cmb_moduli, "\ncmb_ceiling: ", cmb_ceiling, "\ncmb_cl_ints_len: ", cmb_cl_ints_len, "\n");
 
 	cmb_moduli := Unique(cmb_moduli); 
 	zeroes := ListWithIdenticalEntries(cmb_cl_ints_len+1, 0); 
@@ -90,7 +92,7 @@ PartitionClassIntersectionsList := function(partn_posns, partn_stack_sizes, cmb_
 
 		for partl_cmb_cl_ints in cmb_cl_ints_sublst do
 			partn_ceiling := ShallowCopy(zeroes);
-			partn_ceiling{partn_posns[i]} := List(ceiling{partn_posns[i]} / cmb_moduli[i], x -> Int(x)); 
+			partn_ceiling{partn_posns[i]} := List(cmb_ceiling{partn_posns[i]} / cmb_moduli[i], x -> Int(x)); 
 
 			updtd_partl_cmb_cl_ints := PlaceStack(ShallowCopy(partl_cmb_cl_ints), partn_ceiling, 1, partn_stack_sizes[i], partn_stack_sizes[i] + 1); 
 			Append(updtd_cmb_cl_ints_sublst, [ShallowCopy(updtd_partl_cmb_cl_ints)]);
@@ -138,7 +140,7 @@ AllClassIntersections := function(pds_data, prelim_cl_ints, moduli)
 	ord_2_cls_lst := List(reps, x -> Order(x) = 2);
 
 	stack_size := (pds_data.k-Sum(prelim_cl_ints)); 
-	ceiling := List(ConjugacyClasses(char_table), Size) - prelim_cl_ints; 
+	ceiling := List(cls, Size) - prelim_cl_ints; 
 	
 	cmb := CombineInverseClasses(char_table, prelim_cl_ints, ceiling, moduli, char_mat); 
 	idx_inv_cls_lst := cmb.idx_inv_cls_lst;
@@ -154,17 +156,17 @@ AllClassIntersections := function(pds_data, prelim_cl_ints, moduli)
 	partn_sum_ceiling := List(partn_posns, x -> Sum(partn_ceiling{x}));
 	partn_stacks_sizes_lst := PartitionStackSizes(partn_posns, cmb_moduli, partn_sum_ceiling, stack_size);
 
+	fltr_mat := FiltrationMatrix(cmb_char_mat, cmb_moduli, v); 
+	
 	if (Sum(partn_sum_ceiling) < stack_size) or (Size(Filtered(ceiling, i -> SignInt(i) = -1)) > 0) then
 		return [];
 	fi;
 
 
-	fltr_mat := FiltrationMatrix(cmb_char_mat, cmb_moduli, v); 
-	
 	for partn_stacks_sizes in partn_stacks_sizes_lst do 
 		cmb_cl_ints_sublst := PartitionClassIntersectionsList(partn_posns, partn_stacks_sizes, cmb_moduli, cmb_ceiling, cmb_cl_ints_len);
-
 		cmb_cl_ints_sublst := FilterClassIntersections(cmb_char_mat, fltr_mat, cmb_cl_ints_sublst, cmb_prelim_cl_ints, theta1, theta2);
+
 		Append(cmb_cl_ints_lst, cmb_cl_ints_sublst);
 	od;
 
