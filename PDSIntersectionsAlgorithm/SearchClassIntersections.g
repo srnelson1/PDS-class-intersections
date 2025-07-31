@@ -10,6 +10,30 @@ Read("InverseClassCompression.g");
 ####################################################################################################################
 
 
+MakeSpaceList := function(partn_ceiling, len)
+	local
+	partn_space_lst,
+	sum,
+	i, j;
+
+	partn_space_lst := EmptyPlist(len);
+
+	for i in [1.. len] do
+		sum := 0;
+
+		for j in [i.. len] do
+			sum := sum + partn_ceiling[j];
+		od;
+
+		partn_space_lst[i] := sum;
+	od;
+
+	partn_space_lst := Concatenation(partn_space_lst, [0]); #When doing IteratePartition, this accounts for the idx = len case
+
+	return partn_space_lst;
+end;
+
+
 PartitionCeiling := function(ceiling, partn_posns_lst, len)
 	local
 	partn_ceilings,
@@ -42,30 +66,6 @@ PartitionSpaceLists := function(partn_ceilings, len)
 end;
 
 
-MakeSpaceList := function(partn_ceiling, len)
-	local
-	partn_space_lst,
-	sum,
-	i, j;
-
-	partn_space_lst := EmptyPlist(len);
-
-	for i in [1.. len] do
-		sum := 0;
-
-		for j in [i.. len] do
-			sum := sum + partn_ceiling[j];
-		od;
-
-		partn_space_lst[i] := sum;
-	od;
-
-	partn_space_lst := Concatenation(partn_space_lst, [0]); #When doing IteratePartition, this accounts for the idx = len case
-
-	return partn_space_lst;
-end;
-
-
 ####################################################################################################################
 
 StackCeiling := function(ceiling, partn_posns_lst, num_partns)
@@ -86,7 +86,9 @@ PartitionsOfK := function(k, ceiling, partn_posns_lst, partn_moduli_lst)
 	num_partns,
 	partns_k,
 	lst, stack_ceiling, partn_space_lst,
-	zeroes;
+	space_lst,
+	zeroes,
+	finished;
 
 	partns_k := [];
 
@@ -94,13 +96,18 @@ PartitionsOfK := function(k, ceiling, partn_posns_lst, partn_moduli_lst)
 	zeroes := ListWithIdenticalEntries(num_partns, 0);
 
 	stack_ceiling := StackCeiling(ceiling, partn_posns_lst, num_partns);
-	lst := PlaceStack(ShallowCopy(zeroes), stack_ceiling, k, 1, num_partns);
 	space_lst := MakeSpaceList(stack_ceiling, num_partns);
+	lst := ShallowCopy(zeroes);
+	PlaceStack(lst, stack_ceiling, k, 1, num_partns);
 
-	while IteratePartition(lst, stack_ceiling, space_lst, num_partns) do
+	finished := false;
+
+	while not finished do
 		if lst mod partn_moduli_lst = zeroes then
 			Append(partns_k, [ ShallowCopy(lst) ]);
 		fi;
+
+		finished := IteratePartition(lst, stack_ceiling, space_lst, num_partns);
 	od;
 
 	return partns_k;
