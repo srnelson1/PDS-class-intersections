@@ -1,97 +1,201 @@
 
-##############################################################################################################
-####LIST GENERATION###########################################################################################
 
-#This section is dedicated to generating all lsts. The code is built to generate a lst in linear order
-#in the sense that beginning with a starting lst, cl_ints, we repeatedly apply NextClassIntersection
-#to cl_ints, and generate all possible lsts without backtracking.
+LastNonzeroIdx := function(lst, partn_ceiling, len)
+	local i;
 
-#We achieve this behavior subject to two constraints, each lst must sum to an identical quantity called stack_size,
-#and the ith posn in each lst is strictly bounded by some value specified in ceiling[i] (the interpretation for
-#these values is given in AllClassIntersections). So, we initialize by entering a stacks_lst [a_1, ..., a_r] such that 
-#j is the smallest value for which a_j, ..., a_r = 0, respecting the constraint Sum(stacks_lst) = stack_size and
-#a_i <= ceiling[i]. Psuedo code is given for the main process above NextClassIntersection.
+	i := len;
 
-RightmostNonzeroPosition := function(cl_ints, partn_ceiling)
-	local i, lst_size;
+	while i > 0 do
+		if lst[i] <> 0 and partn_ceiling[i] <> 0 then
+			return i;
+		fi;
 
-	lst_size := Size(cl_ints);
+		i := i - 1;
+	od;
 
-	for i in [0..(lst_size-1)] do
-		if cl_ints[lst_size - i] <> 0 and cl_ints[lst_size-i] <= partn_ceiling[lst_size-i] then
-			return lst_size - i;
+	return -1;
+end;
+
+
+NextNonzeroCeilingIdx := function(partn_ceiling, idx, len)
+	local i;
+
+	for i in [idx.. len] do
+		if partn_ceiling[i] <> 0 then
+			return i;
+		fi;
+	od;
+
+	return -1;
+end;
+
+
+MoveUpOne := function(lst, partn_ceiling, idx, len)
+	local j;
+
+	j := NextNonzeroCeilingIdx(partn_ceiling, idx + 1, len);
+
+	lst[idx] := lst[idx] - 1;
+	lst[j] := 1;
+
+	return j + 1;
+end;
+
+
+PlaceStack := function(lst, partn_ceiling, stack, idx, len)
+	local j;
+
+	for j in [idx.. len] do
+		if stack > partn_ceiling[j] then
+			lst[j] := partn_ceiling[j];
+			stack := stack - partn_ceiling[j];
+		else
+			lst[j] := stack;
 			break;
 		fi;
 	od;
-
-	return "All Zeroes";
 end;
 
-#If pickup_stack = max_stack, returns done. Otherwise, iterates through rightmost_pos..Size(stacks_lst) and places as much of
-#pickup_stack at rightmost_pos while respecting ceiling. if Sum(ceiling{[rightmost_pos..Size(stacks_lst)]}) < pickup_stack and
-#pickup_stack <> max_stack, then the above operation is impossible and we return Unplaceable.
-PlaceStack := function(cl_ints, partn_ceiling, rightmost_pos, pickup_stack, max_stack)
-	local i, min_stack_ceil;
 
-	if Sum(partn_ceiling{[rightmost_pos..Size(cl_ints)]}) < pickup_stack then
-		if pickup_stack = max_stack then
-			return "Done";
-		fi;
+RebuildList := function(lst, partn_ceiling, partn_space_lst, idx, len)
+	local
+	stack,
+	i;
 
-		return "Unplaceable";
+	stack := lst[idx] + 1;
+	lst[idx] := 0;
+	i := LastNonzeroIdx(lst, partn_ceiling, len);
+
+	if i = -1 then
+		return true;
 	fi;
 
-	for i in [rightmost_pos..Size(cl_ints)] do
-		min_stack_ceil := Minimum([pickup_stack, partn_ceiling[i]]);
-		cl_ints[i] := cl_ints[i] + min_stack_ceil;
-		
-		if min_stack_ceil = pickup_stack then
-			break;
-		fi;
+	lst[i] := lst[i] - 1;
 
-		pickup_stack := pickup_stack-min_stack_ceil;
+	while (stack > partn_space_lst[i + 1]) do
+		stack := stack + lst[i];
+		lst[i] := 0;
+		i := LastNonzeroIdx(lst, partn_ceiling, len);
+		
+		if i = -1 then
+			return true;
+		fi;
 	od;
 
-	return cl_ints;
+	PlaceStack(lst, partn_ceiling, stack, i + 1, len);
+
+	return false;
 end;
 
-#Takes in a lst [a_1, ..., a_n, 0, 0, ..., 0]. Initializes pickup_stack := 0. Then
-#   1) Search for rightmost nonzero posn, rightmost_pos.
-#   2) Subtract 1 from rightmost_pos and add 1 to pickup_stack.
-#   3) Search for next possible posn in [rightmost_pos+1..end_of_lst] to place pickup_stack which respects ceiling.
-#   4) If no next posn exists, check if pickup_stack contains all values of input lst.
-#   5) If yes, then quite, otherwise return to step 1.
-NextClassIntersection := function(cl_ints, partn_ceiling, stack_size, cl_ints_len)
-	local max_stack, lst_size, check_placeable, rightmost_pos, pickup_stack, next_posn;
 
-	max_stack := stack_size;
+IteratePartition := function(lst, partn_ceiling, partn_space_lst, len)
+	local
+	finished,
+	idx;
 
-	if RightmostNonzeroPosition(cl_ints{[1..cl_ints_len]}, partn_ceiling) = "All Zeroes" then
-		return "Done";
+	finished := false;
+	idx := LastNonzeroIdx(lst, partn_ceiling, len);
+
+	if (partn_space_lst[idx + 1] <> 0) then
+		MoveUpOne(lst, partn_ceiling, idx, len);
+	else
+		finished := RebuildList(lst, partn_ceiling, partn_space_lst, idx, len);
 	fi;
 
-	pickup_stack := 0;
-	check_placeable := "Unplaceable";
+	return finished;
+end;
 
-	while check_placeable = "Unplaceable" do
-		rightmost_pos := RightmostNonzeroPosition(cl_ints, partn_ceiling);
 
-		if rightmost_pos = cl_ints_len + 1 then 
-			pickup_stack := pickup_stack + cl_ints[rightmost_pos];
-			cl_ints[rightmost_pos] := 0;
-			rightmost_pos := RightmostNonzeroPosition(cl_ints, partn_ceiling);
+######################################################################################################################################
+
+
+ResetList := function(lst, base_lst, partn_posns)
+	local j;
+
+	for j in partn_posns do
+		lst[j] := base_lst[j];
+	od;
+end;
+
+
+NextClassIntersections := function(lst, base_lst, partn_ceilings, partn_space_lsts, partn_posns_lst, len, cycles)
+	local finished, i;
+
+	i := 1;
+
+	finished := IteratePartition(lst, partn_ceilings[i], partn_space_lsts[i], len);
+
+
+	while finished do
+		ResetList(lst, base_lst, partn_posns_lst[i]);
+		i := i + 1;
+
+		if i = cycles + 1 then
+			return true;
 		fi;
 
-		cl_ints[rightmost_pos] := cl_ints[rightmost_pos] - 1;
-		pickup_stack := pickup_stack + 1;
-		
-		check_placeable := PlaceStack(cl_ints, partn_ceiling, rightmost_pos + 1, pickup_stack, max_stack);
+		finished := IteratePartition(lst, partn_ceilings[i], partn_space_lsts[i], len);
 	od;
 
-	if check_placeable = "Done" then
-		return "Done";
-	fi;
+	return false;
+end;
 
-	return cl_ints;
+
+######################################################################################################################################
+
+
+PartitionCeiling := function(ceiling, partn_posns_lst, len)
+	local
+	partn_ceilings,
+	i, j;
+
+	partn_ceilings := EmptyPlist(Length(partn_posns_lst));
+
+	for i in [1.. Length(partn_posns_lst)] do
+		partn_ceilings[i] := ListWithIdenticalEntries(len, 0);
+
+		for j in partn_posns_lst[i] do
+			partn_ceilings[i][j] := ceiling[j];
+		od;
+	od;
+
+	return partn_ceilings;
+end;
+
+
+PartitionSpaceLists := function(partn_ceilings, len)
+	local partn_ceiling, partn_space_lsts;
+
+	partn_space_lsts := [];
+
+	for partn_ceiling in partn_ceilings do
+		Append(partn_space_lsts, [ MakeSpaceList(partn_ceiling, len) ] );
+	od;
+
+	return partn_space_lsts;
+end;
+
+
+MakeSpaceList := function(partn_ceiling, len)
+	local
+	partn_space_lst,
+	sum,
+	i, j;
+
+	partn_space_lst := EmptyPlist(len);
+
+	for i in [1.. len] do
+		sum := 0;
+
+		for j in [i.. len] do
+			sum := sum + partn_ceiling[j];
+		od;
+
+		partn_space_lst[i] := sum;
+	od;
+
+	partn_space_lst := Concatenation(partn_space_lst, [0]);
+
+	return partn_space_lst;
 end;
 
