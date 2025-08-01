@@ -1,6 +1,5 @@
 Read("NextClassIntersections.g");
 Read("FilterClassIntersections.g");
-Read("InverseClassCompression.g");
 
 #This file handles the logic behind searching for and filtering feasible class intersections, after being given a modular intersection list.
 #For a description of the algorithm, see PAPER.
