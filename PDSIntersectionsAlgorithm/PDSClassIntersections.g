@@ -14,8 +14,8 @@ PDSClassIntersectionsGroup := function(group, v, k, lambda, mu)
 	pds_data,
 	char_table, irr,
 	prelim_result, final_result,
-	prelim_cl_intersections, prelim_cl_intersections_list, moduli,
-	cl_intersections_list,
+	min_cl_ints, min_cl_ints_lst, moduli,
+	cl_ints_lst,
 	x;
 
 	if IsList(group) then
@@ -23,14 +23,13 @@ PDSClassIntersectionsGroup := function(group, v, k, lambda, mu)
 	fi;
 
 	char_table := CharacterTable(group);
-	irr := Irr(char_table);
 
 	pds_data := rec( #This record contains all the necessary information about the group and possible pds.
 		group := group,
 		char_table := char_table,
 		char_mat := CharMatrix(irr),
 		cls := ConjugacyClasses(char_table),
-		irr := irr,
+		irr := Irr(char_table),
 		v := v,
 		k := k,
 		theta1 := (lambda - mu + RootInt((lambda - mu)^2 + 4*(k - mu), 2))/2,
@@ -38,28 +37,22 @@ PDSClassIntersectionsGroup := function(group, v, k, lambda, mu)
 	);
 
 	final_result := rec();
-	prelim_result := PreliminaryIntersections(pds_data);
-	moduli := prelim_result.moduli;
-	cl_intersections_list := [];
+	prelim_result := MinimalIntersections(pds_data);
 
 	if prelim_result.successful then
-		prelim_cl_intersections_list := prelim_result.prelim_cl_intersections_list;
-
-
-		for prelim_cl_intersections in prelim_cl_intersections_list do
-			x := AllClassIntersections(pds_data, prelim_cl_intersections, moduli);
-			Append(cl_intersections_list, x );
+		for min_cl_ints in min_cl_ints_lst do
+			Append(cl_ints_lst, SearchClassIntersections(pds_data, prelim_result.min_cl_ints, fltr_mat, moduli));
 		od;
 	else
-		cl_intersections_list := [];
+		cl_ints_lst := [];
 		final_result.fail_reason := prelim_result.fail_reason;
 	fi;
 
 
-	final_result.cl_intersections_list := cl_intersections_list;
+	final_result.cl_ints_lst := cl_ints_lst;
 	final_result.moduli := moduli;
-	final_result.prelim_cl_intersections_list := prelim_result.prelim_cl_intersections_list;
-	final_result.successful := cl_intersections_list <> [];
+	final_result.min_cl_ints_lst := prelim_result.min_cl_ints_lst;
+	final_result.successful := cl_ints_lst <> [];
 
 
 	if final_result.successful then
@@ -76,7 +69,7 @@ end;
 
 #This pulls all possible groups on the parameter set [v, k, lambda, mu]. It finds a possible PDS class intersection for each group
 PDSClassIntersections := function(v, k, lambda, mu)
-	local groups, group, class_intersection, i, number_groups, possible_pds_list, x;
+	local groups, group, class_intersection, i, number_groups, possible_pds_lst, x;
 
 	groups := FindCoprimeGroups(v, k, lambda, mu);
 
@@ -85,14 +78,14 @@ PDSClassIntersections := function(v, k, lambda, mu)
 	fi;
 
 	number_groups := Length(groups);
-	possible_pds_list := EmptyPlist(number_groups);
+	possible_pds_lst := EmptyPlst(number_groups);
 
 	for i in [1.. number_groups] do
 		group := groups[i];
 		class_intersection := PDSClassIntersectionsGroup(group, v, k, lambda, mu);
 		class_intersection.group := IdGroup(group);
-		possible_pds_list[i] := class_intersection;
+		possible_pds_lst[i] := class_intersection;
 	od;
 
-	return possible_pds_list;
+	return possible_pds_lst;
 end;

@@ -4,15 +4,15 @@
 #We explain the purpose of FiltrationMatrix. Each cmb_cl_ints is generated such that
 #	   Sum(cmb_cl_ints{partn_posns[i]}) = partn_stack_sizes[i]/cmb_moduli[i].
 #Therefore, if we define a new vector x such that x{partn_posns[i]} = cmb_cl_ints * cmb_moduli[i], then
-#x + prelim_cl_ints represents a full class int vector, with the inverse classes combined, so we expect
-#	   cmb_char_mat[i] * x + cmb_char_mat[i] * prelim_cl_ints
-#to be a sum of eigenvalues, if x + prelim_cl_ints represents a valid class int for the PDS.
+#x + min_cl_ints represents a full class int vector, with the inverse classes combined, so we expect
+#	   cmb_char_mat[i] * x + cmb_char_mat[i] * min_cl_ints
+#to be a sum of eigenvalues, if x + min_cl_ints represents a valid class int for the PDS.
 
 #In practice, it is more computationally expensive to first compute x for each cmb_cl_ints, and then to check that 
-#cmb_char_mat[i] * x + cmb_char_mat[i] * prelim_cl_ints is a sum of eigenvalues. Instead, we define a new matrix
+#cmb_char_mat[i] * x + cmb_char_mat[i] * min_cl_ints is a sum of eigenvalues. Instead, we define a new matrix
 #filration_mat such that fltr_mat * cmb_cl_ints = cmb_char_mat * x. Now, we only need to perform one
 #multiplication, which is
-#	   fltr_mat[i] * cmb_cl_ints + cmb_char_mat[i] * prelim_cl_ints.
+#	   fltr_mat[i] * cmb_cl_ints + cmb_char_mat[i] * min_cl_ints.
 
 FiltrationMatrix := function(cmb_char_mat, cmb_moduli, v)
 	local fltr_mat, i;
@@ -34,14 +34,14 @@ end;
 #Here, we verify that a given cmb_cl_ints is valid. For every combined character degree in cmb_char_mat,
 #we generate all possible eigenvalue sums.
 #Then, for each row i of cmb_char_mat and each degree degs[i] in the ith row of cmb_char_mat, we compute
-#	   eigenvalue_sum - cmb_char_mat[i] * prelim_cl_ints
+#	   eigenvalue_sum - cmb_char_mat[i] * min_cl_ints
 #where eigenvalue_sum is one of the permissible eigenvalue summations generated for the degree degs[i].
 
 #Finally, we check for a given cmb_cl_ints that there is some eigenvalue_sum such that
-#			   fltr_mat[i] * cmb_cl_ints = eigenvalue_sum - cmb_char_mat[i] * prelim_cl_ints
-#given that fltr_mat[i] * cmb_cl_ints + cmb_char_mat[i] * prelim_cl_ints must be an eigenvalue sum
+#			   fltr_mat[i] * cmb_cl_ints = eigenvalue_sum - cmb_char_mat[i] * min_cl_ints
+#given that fltr_mat[i] * cmb_cl_ints + cmb_char_mat[i] * min_cl_ints must be an eigenvalue sum
 #as previously mentioned.
-FilterClassIntersections := function(cmb_char_mat, fltr_mat, cmb_cl_ints_lst, prelim_cl_ints, theta1, theta2)
+FilterClassIntersections := function(cmb_char_mat, fltr_mat, cmb_cl_ints_lst, min_cl_ints, theta1, theta2)
 	local 
 	deg, degs,
 	eigenvalue_degs_lst,
@@ -62,7 +62,7 @@ FilterClassIntersections := function(cmb_char_mat, fltr_mat, cmb_cl_ints_lst, pr
 	output_lst := [];
 
 	for i in [1..Length(cmb_char_mat)] do
-		mod_output := (cmb_char_mat*prelim_cl_ints)[i];
+		mod_output := (cmb_char_mat*min_cl_ints)[i];
 		output_lst[i] := List(eigenvalue_degs_lst[degs[i]], x -> x - mod_output);
 	od;
 

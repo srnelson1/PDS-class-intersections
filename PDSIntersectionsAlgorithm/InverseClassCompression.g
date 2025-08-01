@@ -28,13 +28,13 @@ IndexInverseClassList := function(reps, cls)
 	return idx_inv_cls_lst;
 end;
 
-#For prelim_cl_ints, ceiling, etc., we build new lsts cmb_prelim_cl_ints, cmb_ceiling, etc.
+#For min_cl_ints, ceiling, etc., we build new lsts cmb_min_cl_ints, cmb_ceiling, etc.
 #which correspond to the combined ints |(h^G \cup (h^G)^{-1]) \cap D|.
-CombineInverseClasses := function(char_table, prelim_cl_ints, ceiling, moduli, char_mat)
+CombineInverseClasses := function(char_table, min_cl_ints, ceiling, moduli, char_mat)
 	local
 	cl, cls, inv_cl,  ord_2_cls_lst, elms_cl, elms_cl_lst, reps,
 	idx_inv_cls_lst, 
-	cmb_prelim_cl_ints, 
+	cmb_min_cl_ints, 
 	cmb_ceiling,
 	cmb_char_mat,
 	cmb_moduli,
@@ -46,7 +46,7 @@ CombineInverseClasses := function(char_table, prelim_cl_ints, ceiling, moduli, c
 	idx_inv_cls_lst := IndexInverseClassList(reps, cls);
 
 
-	cmb_prelim_cl_ints := [];
+	cmb_min_cl_ints := [];
 	cmb_ceiling := [];
 	cmb_moduli := [];
 	cmb_char_mat := [];
@@ -57,12 +57,12 @@ CombineInverseClasses := function(char_table, prelim_cl_ints, ceiling, moduli, c
 
 	for i in [1..Length(idx_inv_cls_lst)] do
 		if idx_inv_cls_lst[i][1] <> idx_inv_cls_lst[i][2] then
-			cmb_prelim_cl_ints[i] := prelim_cl_ints[idx_inv_cls_lst[i][1]] + prelim_cl_ints[idx_inv_cls_lst[i][1]];
+			cmb_min_cl_ints[i] := min_cl_ints[idx_inv_cls_lst[i][1]] + min_cl_ints[idx_inv_cls_lst[i][1]];
 			cmb_ceiling[i] := ceiling[idx_inv_cls_lst[i][1]] + ceiling[idx_inv_cls_lst[i][2]];
 			cmb_moduli[i] := moduli[idx_inv_cls_lst[i][1]] + moduli[idx_inv_cls_lst[i][2]];
 			cmb_char_mat[i] := (char_mat[idx_inv_cls_lst[i][1]] + char_mat[idx_inv_cls_lst[i][2]])/2; 
 		else
-			cmb_prelim_cl_ints[i] := prelim_cl_ints[idx_inv_cls_lst[i][1]];
+			cmb_min_cl_ints[i] := min_cl_ints[idx_inv_cls_lst[i][1]];
 			cmb_ceiling[i] := ceiling[idx_inv_cls_lst[i][1]];
 			cmb_moduli[i] := moduli[idx_inv_cls_lst[i][1]];
 			cmb_char_mat[i] := char_mat[idx_inv_cls_lst[i][1]];
@@ -72,7 +72,7 @@ CombineInverseClasses := function(char_table, prelim_cl_ints, ceiling, moduli, c
 	cmb_char_mat := TransposedMat(cmb_char_mat);
 
 	return  rec(
-			prelim_cl_ints := cmb_prelim_cl_ints,
+			min_cl_ints := cmb_min_cl_ints,
 			idx_inv_cls_lst := idx_inv_cls_lst,
 			ceiling := cmb_ceiling,
 			moduli := cmb_moduli,
@@ -82,12 +82,12 @@ end;
 
 #For those classes h^G satisfying h^G = h^{-1}^G but h <> h^{-1}, for which their modulus is odd, we enforce the modulus is even.
 #See LEMMA from PAPER
-SelfInverseCombModuli := function(cmb_prelim_cl_ints, cmb_moduli, idx_inv_cls_lst, ord_2_cls_lst, v)
+SelfInverseCombModuli := function(cmb_min_cl_ints, cmb_moduli, idx_inv_cls_lst, ord_2_cls_lst, v)
 	local i;
 
 	for i in [1..Length(idx_inv_cls_lst)] do
 		if (idx_inv_cls_lst[i][1] = idx_inv_cls_lst[i][2]) and (ord_2_cls_lst[i] = false) then
-			if cmb_prelim_cl_ints[i] mod 2 = 0 and cmb_moduli[i] mod 2 = 1 then 
+			if cmb_min_cl_ints[i] mod 2 = 0 and cmb_moduli[i] mod 2 = 1 then 
 				cmb_moduli[i] := 2*cmb_moduli[i];
 			fi;
 		fi;
@@ -109,7 +109,7 @@ UncmbineInverseClasses := function(cl_ints_lst, idx_inv_cls_lst)
 
 	for i in [1..Length(cl_ints_lst)] do
 		cmb_cl_ints := cl_ints_lst[i];
-		cl_ints := EmptyPlist(num_cls);
+		cl_ints := EmptyPlst(num_cls);
 
 		for j in [1..Length(idx_inv_cls_lst)] do
 			idx_inv_cls := idx_inv_cls_lst[j];

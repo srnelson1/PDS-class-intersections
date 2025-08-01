@@ -1,7 +1,7 @@
 Read("NextClassIntersections.g");
 Read("FilterClassIntersections.g");
 
-#This file handles the logic behind searching for and filtering feasible class intersections, after being given a modular intersection list.
+#This file handles the logic behind searching for and filtering feasible class ints, after being given a modular intersection lst.
 #For a description of the algorithm, see PAPER.
 
 
@@ -15,7 +15,7 @@ MakeSpaceList := function(partn_ceiling, len)
 	sum,
 	i, j;
 
-	partn_space_lst := EmptyPlist(len);
+	partn_space_lst := EmptyPlst(len);
 
 	for i in [1.. len] do
 		sum := 0;
@@ -38,7 +38,7 @@ PartitionCeiling := function(ceiling, partn_posns_lst, len)
 	partn_ceiling_lst,
 	i, j;
 
-	partn_ceiling_lst := EmptyPlist(Length(partn_posns_lst));
+	partn_ceiling_lst := EmptyPlst(Length(partn_posns_lst));
 
 	for i in [1.. Length(partn_posns_lst)] do
 		partn_ceiling_lst[i] := ListWithIdenticalEntries(len, 0);
@@ -82,7 +82,7 @@ end;
 StackCeiling := function(ceiling, partn_posns_lst, num_partns)
 	local stack_ceiling, i;
 
-	stack_ceiling := EmptyPlist(num_partns);
+	stack_ceiling := EmptyPlst(num_partns);
 
 	for i in [1.. num_partns] do
 		stack_ceiling[i] := Sum( ceiling{partn_posns_lst[i]} );
@@ -160,7 +160,7 @@ end;
 ####################################################################################################################
 
 
-SearchClassIntersections := function(pds_data, min_cl_ints, filtr_mat, moduli)
+SearchClassIntersections := function(pds_data, min_cl_ints, fltr_mat, moduli)
 	local 
 	ceiling,
 	len,

@@ -54,10 +54,10 @@ NonNClIntersections := function(group, char_mat, cls, v, k, theta1, theta2)
 	centralizer_size,
 	theta1_cl_intersection_size, theta2_cl_intersection_size, #equals the cl intersection size depending on choice of theta1, theta2
 	non_N_cl_intersection, #records intersection sizes corresponding to theta1, theta2 for a particular cl not in N
-	non_N_cl_intersection_list; #records intersection sizes corresponding to theta1, theta2 for all cl not in N
+	non_N_cl_intersection_lst; #records intersection sizes corresponding to theta1, theta2 for all cl not in N
 
 	non_N_cls := ClassesOutsideN(group, char_mat, cls, theta1-theta2);
-	non_N_cl_intersection_list := [];
+	non_N_cl_intersection_lst := [];
 
 	for cl in non_N_cls do
 		centralizer_size := v/Size(cl);
@@ -82,10 +82,10 @@ NonNClIntersections := function(group, char_mat, cls, v, k, theta1, theta2)
 			return fail;
 		fi;
 
-		non_N_cl_intersection_list[Position(cls, cl)] := non_N_cl_intersection;
+		non_N_cl_intersection_lst[Position(cls, cl)] := non_N_cl_intersection;
 	od;
 
-	return non_N_cl_intersection_list;
+	return non_N_cl_intersection_lst;
 end;
 
 ##############################################################################################################
@@ -94,18 +94,18 @@ end;
 #for a given prime power q, we apply [NS] 4.1 (Thesis 6.1) to calculate the modular intersection size for each conj class.
 ModularIntersections := function(centralizer_sizes,  k, theta2, q)
 	local 
-	cl_mod_q_intersections, #class intersections mod q
+	cl_mod_q_ints, #class ints mod q
 	i; #iteration
 
-	cl_mod_q_intersections := EmptyPlist(Length(centralizer_sizes));
+	cl_mod_q_ints := EmptyPlst(Length(centralizer_sizes));
 
 	for i in [1..Length(centralizer_sizes)] do
 		if centralizer_sizes[i] mod q <> 0 then #i for which  (k-theta2)/centralizer_sizes[i] is computable mod q (these correspond to p_bound_values)
-			cl_mod_q_intersections[i] := (k-theta2)/centralizer_sizes[i] mod q; #compute intersection mod q.
+			cl_mod_q_ints[i] := (k-theta2)/centralizer_sizes[i] mod q; #compute intersection mod q.
 		fi;
 	od;
 
-	return cl_mod_q_intersections;
+	return cl_mod_q_ints;
 end;
 
 #We use ModularIntersections to get, for a specific conjugacy class, each intersection size of that conjugacy class mod q.
@@ -116,12 +116,12 @@ ModularClassIntersections := function(char_table, v, k, theta1, theta2)
 	centralizer_sizes,
 	primes_delta, prime_powers_delta, #primes and prime powers in the decomposition of delta
 	q, #a particular prime power dividing delta
-	cl_mod_q_intersections, #list for intersection of each cl with D mod q.
-	cl_mod_q_intersections_rec, #list of all cl_mod_q_intersections for each q.
-	mod_cl_intersections, #cl intersections such that mod_cl_intersections[i] = cl_mod_q_intersections[i] mod q for all i and q.
-	moduli, #values q used to calculate mod_cl_intersections[i] for each i.
+	cl_mod_q_ints, #lst for intersection of each cl with D mod q.
+	cl_mod_q_ints_rec, #lst of all cl_mod_q_ints for each q.
+	mod_cl_ints, #cl ints such that mod_cl_ints[i] = cl_mod_q_ints[i] mod q for all i and q.
+	moduli, #values q used to calculate mod_cl_ints[i] for each i.
 	defined_q_values, #indices such that ModularIntersections(centralizer_sizes,  k, theta2, q) is defined (see ModularIntersections)
-	defined_cl_q_intersections, #list of intersections mod q for a given cl.
+	defined_cl_q_ints, #lst of ints mod q for a given cl.
 	i, j; #iteration variables
 
 	num_cls := Length(ConjugacyClasses(char_table));
@@ -129,29 +129,29 @@ ModularClassIntersections := function(char_table, v, k, theta1, theta2)
 	primes_delta := PrimePowersInt(theta1-theta2);
 	prime_powers_delta := List([1.. Length(primes_delta)/2], i -> primes_delta[2*i - 1] ^ primes_delta[2*i]);
 
-	cl_mod_q_intersections_rec := rec( 1 := ListWithIdenticalEntries(num_cls, 0));
+	cl_mod_q_ints_rec := rec( 1 := ListWithIdenticalEntries(num_cls, 0));
 
 	for q in prime_powers_delta do #Apply [NS] 4.1 (Thesis 6.1) to get mod q intersection for each conjugacy class
-		cl_mod_q_intersections_rec.(q) := ModularIntersections(centralizer_sizes, k, theta2, q);
+		cl_mod_q_ints_rec.(q) := ModularIntersections(centralizer_sizes, k, theta2, q);
 	od;
 	Append(prime_powers_delta, [1]);
 
 
-	mod_cl_intersections := EmptyPlist(num_cls); #will contain largest possible minimum intersection size for each conjugacy class using Chinese Remainder Theorem
-	moduli := EmptyPlist(num_cls); #contains Chinese Remainder Theorem value for which the ith intersection is valid.
+	mod_cl_ints := EmptyPlst(num_cls); #will contain largest possible minimum intersection size for each conjugacy class using Chinese Remainder Theorem
+	moduli := EmptyPlst(num_cls); #contains Chinese Remainder Theorem value for which the ith intersection is valid.
 
 	for i in [2..num_cls] do
-		defined_q_values := Filtered(prime_powers_delta, q -> IsBound( cl_mod_q_intersections_rec.(q)[i]) ); #values for which centralizer_sizes[i] mod q <> 0
-		defined_cl_q_intersections := List(defined_q_values, q -> cl_mod_q_intersections_rec.(q)[i] ); #cl intersections of centralizer_sizes[i] mod q <> 0
+		defined_q_values := Filtered(prime_powers_delta, q -> IsBound( cl_mod_q_ints_rec.(q)[i]) ); #values for which centralizer_sizes[i] mod q <> 0
+		defined_cl_q_ints := List(defined_q_values, q -> cl_mod_q_ints_rec.(q)[i] ); #cl ints of centralizer_sizes[i] mod q <> 0
 
-		mod_cl_intersections[i] := ChineseRem(defined_q_values, defined_cl_q_intersections);
+		mod_cl_ints[i] := ChineseRem(defined_q_values, defined_cl_q_ints);
 		moduli[i] := Product(defined_q_values);
 	od;
 
-	mod_cl_intersections[1] := (k - theta2 + v*theta2) mod ((theta1-theta2)/Gcd(v, theta1-theta2)); #See [NS] 4.1 (Thesis 6.1) for the origin of this equality.
+	mod_cl_ints[1] := (k - theta2 + v*theta2) mod ((theta1-theta2)/Gcd(v, theta1-theta2)); #See [NS] 4.1 (Thesis 6.1) for the origin of this equality.
 	moduli[1] := k;
 
-	return rec( mod_cl_intersections := mod_cl_intersections, moduli := moduli);
+	return rec( mod_cl_ints := mod_cl_ints, moduli := moduli);
 end;
 
 
@@ -159,17 +159,17 @@ end;
 ####FILTRATION################################################################################################
 
 
-IsValidPreliminaryIntersection := function(char_mat, prelim_cl_intersections, k, cp_delta)
-	local  phi_1, sum_prelim_cl_intersections;
+IsValidPreliminaryIntersection := function(char_mat, min_cl_ints, k, cp_delta)
+	local  phi_1, sum_min_cl_ints;
 
-	phi_1 := char_mat*prelim_cl_intersections * List(char_mat, row -> row[1]); #This corresponds to calculating Phi(1).
+	phi_1 := char_mat*min_cl_ints * List(char_mat, row -> row[1]); #This corresponds to calculating Phi(1).
 
-	sum_prelim_cl_intersections := Sum(prelim_cl_intersections);
+	sum_min_cl_ints := Sum(min_cl_ints);
 
-	if sum_prelim_cl_intersections > k then
+	if sum_min_cl_ints > k then
 		return false;
 
-	elif (sum_prelim_cl_intersections - k) mod cp_delta <> 0 then
+	elif (sum_min_cl_ints - k) mod cp_delta <> 0 then
 		return false;
 
 	elif phi_1 mod cp_delta <> 0 then
@@ -184,18 +184,18 @@ end;
 ##############################################################################################################
 
 #This function calls ModularClassIntersections and NonNClIntersections to generate two distinct intersection
-#lists using [NS] 4.1 (Thesis 6.1) and [NS] 3.8 (Thesis 5.11). It then combines these lasts into one, preliminary intersection called prelim_intersections
-#such that all values in prelim_intersections satisfy [NS] 4.1 (Thesis 6.1) and [NS] 3.8 (Thesis 5.11).
-#This function also returns a secondary list, moduli, consisting of the largest modulus x such that if c is the size of the
-#intersection of the ith conjugacy class with a possible PDS, then prelim_intersections[i] = c mod x.
+#lsts using [NS] 4.1 (Thesis 6.1) and [NS] 3.8 (Thesis 5.11). It then combines these lasts into one, preliminary intersection called prelim_ints
+#such that all values in prelim_ints satisfy [NS] 4.1 (Thesis 6.1) and [NS] 3.8 (Thesis 5.11).
+#This function also returns a secondary lst, moduli, consisting of the largest modulus x such that if c is the size of the
+#intersection of the ith conjugacy class with a possible PDS, then prelim_ints[i] = c mod x.
 PreliminaryIntersections := function(pds_data)
 	local
 	group, char_table, char_mat, cls, v, k, theta1, theta2,
-	moduli, mod_cl_intersections,
-	nonN_cl_intersection_list, #list of all intersections for non N conjugacy class with elements of order coprime to delta.
-	theta1_cl_intersection, theta2_cl_intersection, #class intersections of non N conjugacy classes for theta1, theta2.
-	prelim_cl_intersections, prelim_cl_intersections_list, #list of class intersections
-	dummy_list, x, #dummy variables
+	moduli, mod_cl_ints,
+	nonN_cl_intersection_lst, #lst of all ints for non N conjugacy class with elements of order coprime to delta.
+	theta1_cl_intersection, theta2_cl_intersection, #class ints of non N conjugacy classes for theta1, theta2.
+	min_cl_ints, min_cl_ints_lst, #lst of class ints
+	dummy_lst, x, #dummy variables
 	i;
 
 	group := pds_data.group;
@@ -208,49 +208,49 @@ PreliminaryIntersections := function(pds_data)
 	theta2 := pds_data.theta2;
 
 	x := ModularClassIntersections(char_table, v, k, theta1, theta2);
-	mod_cl_intersections := x.mod_cl_intersections;
+	mod_cl_ints := x.mod_cl_ints;
 	moduli := x.moduli;
 
-	nonN_cl_intersection_list := NonNClIntersections(group, char_mat, cls, v, k, theta1, theta2);
+	nonN_cl_intersection_lst := NonNClIntersections(group, char_mat, cls, v, k, theta1, theta2);
 
-	if nonN_cl_intersection_list = fail then #If non N intersections do not exist, we communicate that it failed.
-		return rec(prelim_cl_intersections_list := mod_cl_intersections, 
+	if nonN_cl_intersection_lst = fail then #If non N ints do not exist, we communicate that it failed.
+		return rec(min_cl_ints_lst := mod_cl_ints, 
 				   moduli := moduli,
 				   successful := false,
 				   fail_reason := "NonNClIntersections Failed"
 				   );
 	fi;
 
-   prelim_cl_intersections_list := [[]];
+   min_cl_ints_lst := [[]];
 
 	for i in [1..Length(ConjugacyClasses(char_table))] do
-		if IsBound(nonN_cl_intersection_list[i]) then #if nonN intersection is defined for index i
-			theta1_cl_intersection := nonN_cl_intersection_list[i][1]; #then grab theta1, theta2 intersections
-			theta2_cl_intersection := nonN_cl_intersection_list[i][2];
+		if IsBound(nonN_cl_intersection_lst[i]) then #if nonN intersection is defined for index i
+			theta1_cl_intersection := nonN_cl_intersection_lst[i][1]; #then grab theta1, theta2 ints
+			theta2_cl_intersection := nonN_cl_intersection_lst[i][2];
 
-			if theta1_cl_intersection <> -1 and theta2_cl_intersection <> -1 then #Finally, add to all lists the theta1, theta2 intersections (if they exist)
-				dummy_list := List(prelim_cl_intersections_list, x -> Concatenation(x, [theta1_cl_intersection]));
-				prelim_cl_intersections_list := List(prelim_cl_intersections_list, x -> Concatenation(x, [theta2_cl_intersection]));
+			if theta1_cl_intersection <> -1 and theta2_cl_intersection <> -1 then #Finally, add to all lsts the theta1, theta2 ints (if they exist)
+				dummy_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta1_cl_intersection]));
+				min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta2_cl_intersection]));
 
-				prelim_cl_intersections_list := Concatenation(prelim_cl_intersections_list, dummy_list);
+				min_cl_ints_lst := Concatenation(min_cl_ints_lst, dummy_lst);
 				
 			elif theta1_cl_intersection <> -1 then
-				prelim_cl_intersections_list := List(prelim_cl_intersections_list, x -> Concatenation(x, [theta1_cl_intersection]));
+				min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta1_cl_intersection]));
 
 			else
-				prelim_cl_intersections_list := List(prelim_cl_intersections_list, x -> Concatenation(x, [theta2_cl_intersection]));
+				min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta2_cl_intersection]));
 
 			fi;
 
 			moduli[i] := k;
 		else
-			prelim_cl_intersections_list := List(prelim_cl_intersections_list, x -> Concatenation(x, [mod_cl_intersections[i]]) ); #otherwise, set intersection to modular value
+			min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [mod_cl_ints[i]]) ); #otherwise, set intersection to modular value
 		fi;
 	od;
 	
-	for prelim_cl_intersections in prelim_cl_intersections_list do #Remove invalid prelim_cl_intersections
-		if not IsValidPreliminaryIntersection(char_mat, prelim_cl_intersections, k, (theta1-theta2)/Gcd(v, theta1-theta2)) then
-			return rec(prelim_cl_intersections_list := prelim_cl_intersections_list, 
+	for min_cl_ints in min_cl_ints_lst do #Remove invalid min_cl_ints
+		if not IsValidPreliminaryIntersection(char_mat, min_cl_ints, k, (theta1-theta2)/Gcd(v, theta1-theta2)) then
+			return rec(min_cl_ints_lst := min_cl_ints_lst, 
 					   moduli := moduli,
 					   successful := false,
 					   fail_reason := "IsValidPreliminaryIntersection Failed" #if everything fails, return unsuccessful
@@ -258,7 +258,7 @@ PreliminaryIntersections := function(pds_data)
 		fi;
 	od;
 
-	return rec(prelim_cl_intersections_list := prelim_cl_intersections_list,
+	return rec(min_cl_ints_lst := min_cl_ints_lst,
 			   moduli := moduli,
 			   successful := true,
 			   fail_reason := "None"

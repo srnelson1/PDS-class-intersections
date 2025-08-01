@@ -39,7 +39,7 @@ TestPDSParam:= function(v,k,lambda,mu)
 	fi;		
 
 	#Return the results. Which graph "failed" the test (and would thus
-	#need to have every conjugacy class meet the PDS) is listed in parentheses.
+	#need to have every conjugacy class meet the PDS) is lsted in parentheses.
 
 	if gamtest then
 		if gamcomptest then
