@@ -170,7 +170,6 @@ SearchClassIntersections := function(pds_data, min_cl_ints, fltr_mat, moduli)
 	finished,
 	cycles;
 
-	ceiling := List(pds_data.cls, Size);
 	len := Length(ceiling);
 
 	partn_moduli_lst := Unique(moduli);
@@ -190,8 +189,16 @@ SearchClassIntersections := function(pds_data, min_cl_ints, fltr_mat, moduli)
 
 		while not finished do 
 			finished := NextClassIntersection(lst, base_lst, partn_ceiling_lst, partn_space_lsts, partn_posns_lst, len, cycles);
-			Print(lst);
 		od;
 	od;
 
 end;
+
+
+AllClassIntersections := function(pds_data, min_cl_ints, moduli)
+	local
+	cmb,
+	ceiling;
+
+	ceiling := List(pds_data.cls, Size);
+	cmb := CombineInverseClasses(pds_data, ceiling, min_cl_ints, moduli);
