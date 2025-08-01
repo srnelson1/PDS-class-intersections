@@ -46,39 +46,40 @@ PlaceStack := function(lst, partn_ceiling, stack, idx, len)
 	local j;
 
 	for j in [idx.. len] do
-		if stack > partn_ceiling[j] then
-			lst[j] := partn_ceiling[j];
-			stack := stack - partn_ceiling[j];
-		else
-			lst[j] := stack;
-			break;
+		if partn_ceiling[j] <> 0 then
+			if stack > partn_ceiling[j] then
+				lst[j] := partn_ceiling[j];
+				stack := stack - partn_ceiling[j];
+			else
+				lst[j] := stack;
+				break;
+			fi;
 		fi;
 	od;
 end;
 
 
+
 RebuildList := function(lst, partn_ceiling, partn_space_lst, idx, len)
 	local
 	stack,
+	x,
 	i;
 
-	stack := lst[idx] + 1;
-	lst[idx] := 0;
-	i := LastNonzeroIdx(lst, partn_ceiling, len);
+	stack := 0;
 
-	if i = -1 then
-		return true;
-	fi;
-
-	lst[i] := lst[i] - 1;
-
-	while (stack > partn_space_lst[i + 1]) do
-		stack := stack + lst[i];
-		lst[i] := 0;
+	while true do
 		i := LastNonzeroIdx(lst, partn_ceiling, len);
-		
+
 		if i = -1 then
 			return true;
+		fi;
+
+		stack := stack + 1;
+		lst[i] := lst[i] - 1;
+
+		if stack <= partn_space_lst[i+1] then
+			break;
 		fi;
 	od;
 
@@ -96,7 +97,9 @@ IteratePartition := function(lst, partn_ceiling, partn_space_lst, len)
 	finished := false;
 	idx := LastNonzeroIdx(lst, partn_ceiling, len);
 
-	if (partn_space_lst[idx + 1] <> 0) then
+	if idx = -1 then
+		finished := true;
+	elif (partn_space_lst[idx + 1] <> 0) then
 		MoveUpOne(lst, partn_ceiling, idx, len);
 	else
 		finished := RebuildList(lst, partn_ceiling, partn_space_lst, idx, len);
@@ -118,12 +121,12 @@ ResetList := function(lst, base_lst, partn_posns)
 end;
 
 
-NextClassIntersections := function(lst, base_lst, partn_ceilings, partn_space_lsts, partn_posns_lst, len, cycles)
+NextClassIntersection := function(lst, base_lst, partn_ceiling_lst, partn_space_lsts, partn_posns_lst, len, cycles)
 	local finished, i;
 
 	i := 1;
 
-	finished := IteratePartition(lst, partn_ceilings[i], partn_space_lsts[i], len);
+	finished := IteratePartition(lst, partn_ceiling_lst[i], partn_space_lsts[i], len);
 
 
 	while finished do
@@ -134,10 +137,8 @@ NextClassIntersections := function(lst, base_lst, partn_ceilings, partn_space_ls
 			return true;
 		fi;
 
-		finished := IteratePartition(lst, partn_ceilings[i], partn_space_lsts[i], len);
+		finished := IteratePartition(lst, partn_ceiling_lst[i], partn_space_lsts[i], len);
 	od;
 
 	return false;
 end;
-
-
