@@ -45,7 +45,6 @@ CombineInverseClasses := function(char_table, min_cl_ints, ceiling, moduli, char
 	reps := List(cls, cl -> Representative(cl));
 	idx_inv_cls_lst := IndexInverseClassList(reps, cls);
 
-
 	cmb_min_cl_ints := [];
 	cmb_ceiling := [];
 	cmb_moduli := [];
@@ -97,7 +96,7 @@ SelfInverseCombModuli := function(cmb_min_cl_ints, cmb_moduli, idx_inv_cls_lst, 
 end;
 
 #We uncmbine all cmb_cl_ints in cl_ints_lst.
-UncmbineInverseClasses := function(cl_ints_lst, idx_inv_cls_lst)
+UncombineInverseClasses := function(cl_ints_lst, idx_inv_cls_lst)
 	local
 	cl_ints,
 	cmb_cl_ints,
