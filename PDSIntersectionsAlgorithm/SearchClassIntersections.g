@@ -213,7 +213,7 @@ AllClassIntersections := function(pds_data, min_cl_ints, moduli)
 	ceiling := List(pds_data.cls, Size);
 
 	cmb := CombineInverseClasses(pds_data, ceiling, min_cl_ints, moduli);
-	fltr := Filtration(cmb, pds_data, min_cl_ints);
+	fltr := Filtration(pds_data, cmb, min_cl_ints);
 	
 	cl_ints_lst := SearchClassIntersections(pds_data, fltr, cmb, min_cl_ints);
 	cl_ints_lst := UncombineInverseClasses(cl_ints_lst, cmb.idx_inv_cls_lst);
