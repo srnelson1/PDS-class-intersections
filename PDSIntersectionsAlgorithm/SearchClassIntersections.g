@@ -191,9 +191,9 @@ SearchClassIntersections := function(pds_data, fltr, cmb, min_cl_ints)
 
 		while not finished do 
 			finished := NextClassIntersection(lst, base_lst, partn_ceiling_lst, partn_space_lsts, partn_posns_lst, len, cycles);
-			Append(cl_ints_lst, [ ShallowCopy(lst) ] );
+
 #			if ValidClassIntersection(fltr, cmb, lst) then
-#				Append(cl_ints_lst, lst);
+				Append(cl_ints_lst, [ ShallowCopy(lst) ] );
 #			fi;
 		od;
 	od;
@@ -201,8 +201,8 @@ SearchClassIntersections := function(pds_data, fltr, cmb, min_cl_ints)
 	return cl_ints_lst;
 end;
 
-
 ####################################################################################################################
+
 MultiplyModulus := function(cl_ints, cmb, len)
 	local i;
 
@@ -221,6 +221,7 @@ RebuildClassIntersections := function(cl_ints_lst, cmb, min_cl_ints, len)
 
 	return cl_ints_lst;
 end;
+
 
 AllClassIntersections := function(pds_data, min_cl_ints, moduli)
 	local
