@@ -1,4 +1,5 @@
 Read("NextClassIntersections.g");
+Read("InverseClassCompression.g");
 Read("FilterClassIntersections.g");
 
 #This file handles the logic behind searching for and filtering feasible class ints, after being given a modular intersection lst.
@@ -15,7 +16,7 @@ MakeSpaceList := function(partn_ceiling, len)
 	sum,
 	i, j;
 
-	partn_space_lst := EmptyPlst(len);
+	partn_space_lst := EmptyPlist(len);
 
 	for i in [1.. len] do
 		sum := 0;
@@ -38,7 +39,7 @@ PartitionCeiling := function(ceiling, partn_posns_lst, len)
 	partn_ceiling_lst,
 	i, j;
 
-	partn_ceiling_lst := EmptyPlst(Length(partn_posns_lst));
+	partn_ceiling_lst := EmptyPlist(Length(partn_posns_lst));
 
 	for i in [1.. Length(partn_posns_lst)] do
 		partn_ceiling_lst[i] := ListWithIdenticalEntries(len, 0);
@@ -82,7 +83,7 @@ end;
 StackCeiling := function(ceiling, partn_posns_lst, num_partns)
 	local stack_ceiling, i;
 
-	stack_ceiling := EmptyPlst(num_partns);
+	stack_ceiling := EmptyPlist(num_partns);
 
 	for i in [1.. num_partns] do
 		stack_ceiling[i] := Sum( ceiling{partn_posns_lst[i]} );
@@ -160,9 +161,9 @@ end;
 ####################################################################################################################
 
 
-SearchClassIntersections := function(pds_data, min_cl_ints, fltr_mat, moduli)
+SearchClassIntersections := function(pds_data, fltr, cmb, min_cl_ints)
 	local 
-	ceiling,
+	cl_ints_lst,
 	len,
 	partn_moduli_lst, partn_posns_lst, partn_ceiling_lst, partn_space_lsts,
 	mod_sums_lst, mod_sum,
@@ -170,16 +171,18 @@ SearchClassIntersections := function(pds_data, min_cl_ints, fltr_mat, moduli)
 	finished,
 	cycles;
 
-	len := Length(ceiling);
+	cl_ints_lst := [];
 
-	partn_moduli_lst := Unique(moduli);
-	partn_posns_lst := ModuliClassPartition(moduli, partn_moduli_lst);
-	partn_ceiling_lst := PartitionCeiling(ceiling, partn_posns_lst, len);
+	len := Length(cmb.ceiling);
+
+	partn_moduli_lst := Unique(cmb.moduli);
+	partn_posns_lst := ModuliClassPartition(cmb.moduli, partn_moduli_lst);
+	partn_ceiling_lst := PartitionCeiling(cmb.ceiling, partn_posns_lst, len);
 	partn_space_lsts := PartitionSpaceLists(partn_ceiling_lst, len);
 
 	cycles := Length(partn_moduli_lst);
 
-	mod_sums_lst := ModSumsOfK(pds_data.k - Sum(min_cl_ints), ceiling, partn_posns_lst, partn_moduli_lst);
+	mod_sums_lst := ModSumsOfK(pds_data.k - Sum(min_cl_ints), cmb.ceiling, partn_posns_lst, partn_moduli_lst);
 
 	for mod_sum in mod_sums_lst do
 		lst := BuildList(mod_sum, partn_ceiling_lst, len);
@@ -188,17 +191,36 @@ SearchClassIntersections := function(pds_data, min_cl_ints, fltr_mat, moduli)
 		finished := false;
 
 		while not finished do 
+			Error("testing...");
 			finished := NextClassIntersection(lst, base_lst, partn_ceiling_lst, partn_space_lsts, partn_posns_lst, len, cycles);
+			
+			if ValidClassIntersection(fltr, cmb, lst) then
+				Append(cl_ints_lst, lst);
+			fi;
 		od;
 	od;
 
+	return cl_ints_lst;
 end;
 
 
 AllClassIntersections := function(pds_data, min_cl_ints, moduli)
 	local
-	cmb,
-	ceiling;
+	cmb, fltr,
+	ceiling,
+	cl_ints_lst;
 
 	ceiling := List(pds_data.cls, Size);
+
 	cmb := CombineInverseClasses(pds_data, ceiling, min_cl_ints, moduli);
+	fltr := Filtration(cmb, pds_data, min_cl_ints);
+	
+	cl_ints_lst := SearchClassIntersections(pds_data, fltr, cmb, min_cl_ints);
+	cl_ints_lst := UncombineInverseClasses(cl_ints_lst, cmb.idx_inv_cls_lst);
+
+	return cl_ints_lst;
+end;
+
+
+
+

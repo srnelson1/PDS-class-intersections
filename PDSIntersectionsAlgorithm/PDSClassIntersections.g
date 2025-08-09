@@ -23,13 +23,14 @@ PDSClassIntersectionsGroup := function(group, v, k, lambda, mu)
 	fi;
 
 	char_table := CharacterTable(group);
+	irr := Irr(char_table);
 
 	pds_data := rec( #This record contains all the necessary information about the group and possible pds.
 		group := group,
 		char_table := char_table,
 		char_mat := CharMatrix(irr),
 		cls := ConjugacyClasses(char_table),
-		irr := Irr(char_table),
+		irr := irr, 
 		v := v,
 		k := k,
 		theta1 := (lambda - mu + RootInt((lambda - mu)^2 + 4*(k - mu), 2))/2,
@@ -37,11 +38,9 @@ PDSClassIntersectionsGroup := function(group, v, k, lambda, mu)
 	);
 
 	final_result := rec();
-	prelim_result := MinimalIntersections(pds_data);
-
 	if prelim_result.successful then
 		for min_cl_ints in min_cl_ints_lst do
-			Append(cl_ints_lst, SearchClassIntersections(pds_data, prelim_result.min_cl_ints, fltr_mat, moduli));
+			Append(cl_ints_lst, AllClassIntersections(pds_data, min_cl_ints, moduli));
 		od;
 	else
 		cl_ints_lst := [];
@@ -78,7 +77,7 @@ PDSClassIntersections := function(v, k, lambda, mu)
 	fi;
 
 	number_groups := Length(groups);
-	possible_pds_lst := EmptyPlst(number_groups);
+	possible_pds_lst := EmptyPlist(number_groups);
 
 	for i in [1.. number_groups] do
 		group := groups[i];
