@@ -34,37 +34,6 @@ MakeSpaceList := function(partn_ceiling, len)
 end;
 
 
-PartitionCeiling := function(ceiling, partn_posns_lst, len)
-	local
-	partn_ceiling_lst,
-	i, j;
-
-	partn_ceiling_lst := EmptyPlist(Length(partn_posns_lst));
-
-	for i in [1.. Length(partn_posns_lst)] do
-		partn_ceiling_lst[i] := ListWithIdenticalEntries(len, 0);
-
-		for j in partn_posns_lst[i] do
-			partn_ceiling_lst[i][j] := ceiling[j];
-		od;
-	od;
-
-	return partn_ceiling_lst;
-end;
-
-
-PartitionSpaceLists := function(partn_ceiling_lst, len)
-	local partn_ceiling, partn_space_lsts;
-
-	partn_space_lsts := [];
-
-	for partn_ceiling in partn_ceiling_lst do
-		Append(partn_space_lsts, [ MakeSpaceList(partn_ceiling, len) ] );
-	od;
-
-	return partn_space_lsts;
-end;
-
 
 ####################################################################################################################
 
@@ -128,8 +97,7 @@ end;
 
 ####################################################################################################################
 
-
-ModuliClassPartition := function(moduli, partn_moduli_lst)
+PartitionPositionsList := function(moduli, partn_moduli_lst)
 	local partn_posns_lst, x;
 
 	partn_posns_lst := [];
@@ -141,6 +109,37 @@ ModuliClassPartition := function(moduli, partn_moduli_lst)
 	return partn_posns_lst;
 end;
 
+
+PartitionCeiling := function(cmb, partn_posns_lst, len)
+	local
+	partn_ceiling_lst,
+	i, j;
+
+	partn_ceiling_lst := EmptyPlist(Length(partn_posns_lst));
+
+	for i in [1.. Length(partn_posns_lst)] do
+		partn_ceiling_lst[i] := ListWithIdenticalEntries(len, 0);
+
+		for j in partn_posns_lst[i] do
+			partn_ceiling_lst[i][j] := cmb.ceiling[j];
+		od;
+	od;
+
+	return partn_ceiling_lst;
+end;
+
+
+PartitionSpaceLists := function(partn_ceiling_lst, len)
+	local partn_ceiling, partn_space_lsts;
+
+	partn_space_lsts := [];
+
+	for partn_ceiling in partn_ceiling_lst do
+		Append(partn_space_lsts, [ MakeSpaceList(partn_ceiling, len) ] );
+	od;
+
+	return partn_space_lsts;
+end;
 
 ####################################################################################################################
 
@@ -175,8 +174,8 @@ SearchClassIntersections := function(pds_data, fltr, cmb, min_cl_ints)
 	len := Length(cmb.ceiling);
 
 	partn_moduli_lst := Unique(cmb.moduli);
-	partn_posns_lst := ModuliClassPartition(cmb.moduli, partn_moduli_lst);
-	partn_ceiling_lst := PartitionCeiling(cmb.ceiling, partn_posns_lst, len);
+	partn_posns_lst := PartitionPositionsList(cmb.moduli, partn_moduli_lst);
+	partn_ceiling_lst := PartitionCeiling(cmb, partn_posns_lst, len);
 	partn_space_lsts := PartitionSpaceLists(partn_ceiling_lst, len);
 
 	cycles := Length(partn_moduli_lst);
@@ -203,10 +202,10 @@ end;
 
 ####################################################################################################################
 
-MultiplyModulus := function(cl_ints, cmb, len)
+MultiplyModulus := function(cl_ints, cmb)
 	local i;
 
-	for i in [1.. len] do
+	for i in [1.. cmb.len] do
 		cl_ints[i] := cl_ints[i] * cmb.moduli[i];
 	od;
 
@@ -214,8 +213,8 @@ MultiplyModulus := function(cl_ints, cmb, len)
 end;
 
 
-RebuildClassIntersections := function(cl_ints_lst, cmb, min_cl_ints, len)
-	cl_ints_lst := List(cl_ints_lst, cl_ints -> MultiplyModulus(cl_ints, cmb, Length(cmb.ceiling)));
+RebuildClassIntersections := function(cl_ints_lst, cmb, min_cl_ints)
+	cl_ints_lst := List(cl_ints_lst, cl_ints -> MultiplyModulus(cl_ints, cmb));
 	cl_ints_lst := UncombineInverseClasses(cl_ints_lst, cmb.idx_inv_cls_lst);
 	cl_ints_lst := List(cl_ints_lst, cl_ints -> cl_ints + min_cl_ints);
 
@@ -227,15 +226,21 @@ AllClassIntersections := function(pds_data, min_cl_ints, moduli)
 	local
 	cmb, fltr,
 	ceiling,
-	cl_ints, cl_ints_lst;
+	cl_ints, cl_ints_lst,
+	i;
 
 	ceiling := List(pds_data.cls, Size);
 
+	Error("test.");
 	cmb := CombineInverseClasses(pds_data, ceiling, min_cl_ints, moduli);
+	Error("testing..");
+	cmb.ceiling := cmb.ceiling - cmb.min_cl_ints;
+	cmb.ceiling := List([1.. cmb.len], i -> Int( cmb.ceiling[i] / cmb.moduli[i]));
+	Error("test");
 	fltr := Filtration(pds_data, cmb, min_cl_ints);
 	
 	cl_ints_lst := SearchClassIntersections(pds_data, fltr, cmb, min_cl_ints);
-	cl_ints_lst := RebuildClassIntersections(cl_ints_lst, cmb, min_cl_ints, Length(cmb.ceiling));
+	cl_ints_lst := RebuildClassIntersections(cl_ints_lst, cmb, min_cl_ints);
 
 	return cl_ints_lst;
 end;

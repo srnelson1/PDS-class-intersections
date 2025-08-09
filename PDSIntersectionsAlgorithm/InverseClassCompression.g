@@ -48,7 +48,7 @@ SelfInverseCombModuli := function(cmb_min_cl_ints, cmb_moduli, idx_inv_cls_lst, 
 	return cmb_moduli;
 end;
 
-CombineInverseClasses := function(pds_data, min_cl_ints, ceiling, moduli)
+CombineInverseClasses := function(pds_data, ceiling, min_cl_ints, moduli)
     local
     char_table, char_mat,
     cl, cls, ord_2_cls_lst, reps,
@@ -80,7 +80,7 @@ CombineInverseClasses := function(pds_data, min_cl_ints, ceiling, moduli)
 
     for i in [1..Length(idx_inv_cls_lst)] do
         if idx_inv_cls_lst[i][1] <> idx_inv_cls_lst[i][2] then
-            cmb_min_cl_ints[i] := min_cl_ints[idx_inv_cls_lst[i][1]] + min_cl_ints[idx_inv_cls_lst[i][1]];
+            cmb_min_cl_ints[i] := min_cl_ints[idx_inv_cls_lst[i][1]] + min_cl_ints[idx_inv_cls_lst[i][2]];
             cmb_ceiling[i] := ceiling[idx_inv_cls_lst[i][1]] + ceiling[idx_inv_cls_lst[i][2]];
             cmb_moduli[i] := moduli[idx_inv_cls_lst[i][1]] + moduli[idx_inv_cls_lst[i][2]];
             cmb_char_mat[i] := (char_mat[idx_inv_cls_lst[i][1]] + char_mat[idx_inv_cls_lst[i][2]])/2; #Say idx_inv_cls_lst[k] = [i, j], then when we generate cmb_cl_intersection, we want cmb_char_mat[k] * cmb_cl_intersection = char_mat[i] * cl_intersection + char_mat[j] * cl_intersection. This requires division by 2.
@@ -101,6 +101,7 @@ CombineInverseClasses := function(pds_data, min_cl_ints, ceiling, moduli)
 		ceiling := cmb_ceiling,
 		moduli := cmb_moduli,
 		char_mat := cmb_char_mat,
+		len := Length(cmb_ceiling),
 		ord_2_cls_lst := ord_2_cls_lst
         );
 end;
