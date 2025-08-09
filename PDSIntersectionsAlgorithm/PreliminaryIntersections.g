@@ -97,7 +97,7 @@ ModularIntersections := function(centralizer_sizes,  k, theta2, q)
 	cl_mod_q_ints, #class ints mod q
 	i; #iteration
 
-	cl_mod_q_ints := EmptyPlst(Length(centralizer_sizes));
+	cl_mod_q_ints := EmptyPlist(Length(centralizer_sizes));
 
 	for i in [1..Length(centralizer_sizes)] do
 		if centralizer_sizes[i] mod q <> 0 then #i for which  (k-theta2)/centralizer_sizes[i] is computable mod q (these correspond to p_bound_values)
@@ -137,8 +137,8 @@ ModularClassIntersections := function(char_table, v, k, theta1, theta2)
 	Append(prime_powers_delta, [1]);
 
 
-	mod_cl_ints := EmptyPlst(num_cls); #will contain largest possible minimum intersection size for each conjugacy class using Chinese Remainder Theorem
-	moduli := EmptyPlst(num_cls); #contains Chinese Remainder Theorem value for which the ith intersection is valid.
+	mod_cl_ints := EmptyPlist(num_cls); #will contain largest possible minimum intersection size for each conjugacy class using Chinese Remainder Theorem
+	moduli := EmptyPlist(num_cls); #contains Chinese Remainder Theorem value for which the ith intersection is valid.
 
 	for i in [2..num_cls] do
 		defined_q_values := Filtered(prime_powers_delta, q -> IsBound( cl_mod_q_ints_rec.(q)[i]) ); #values for which centralizer_sizes[i] mod q <> 0
@@ -188,7 +188,7 @@ end;
 #such that all values in prelim_ints satisfy [NS] 4.1 (Thesis 6.1) and [NS] 3.8 (Thesis 5.11).
 #This function also returns a secondary lst, moduli, consisting of the largest modulus x such that if c is the size of the
 #intersection of the ith conjugacy class with a possible PDS, then prelim_ints[i] = c mod x.
-PreliminaryIntersections := function(pds_data)
+MinimalIntersections := function(pds_data)
 	local
 	group, char_table, char_mat, cls, v, k, theta1, theta2,
 	moduli, mod_cl_ints,
