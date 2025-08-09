@@ -160,7 +160,6 @@ end;
 
 ####################################################################################################################
 
-
 SearchClassIntersections := function(pds_data, fltr, cmb, min_cl_ints)
 	local 
 	cl_ints_lst,
@@ -191,12 +190,11 @@ SearchClassIntersections := function(pds_data, fltr, cmb, min_cl_ints)
 		finished := false;
 
 		while not finished do 
-			Error("testing...");
 			finished := NextClassIntersection(lst, base_lst, partn_ceiling_lst, partn_space_lsts, partn_posns_lst, len, cycles);
-			
-			if ValidClassIntersection(fltr, cmb, lst) then
-				Append(cl_ints_lst, lst);
-			fi;
+			Append(cl_ints_lst, [ ShallowCopy(lst) ] );
+#			if ValidClassIntersection(fltr, cmb, lst) then
+#				Append(cl_ints_lst, lst);
+#			fi;
 		od;
 	od;
 
@@ -204,11 +202,31 @@ SearchClassIntersections := function(pds_data, fltr, cmb, min_cl_ints)
 end;
 
 
+####################################################################################################################
+MultiplyModulus := function(cl_ints, cmb, len)
+	local i;
+
+	for i in [1.. len] do
+		cl_ints[i] := cl_ints[i] * cmb.moduli[i];
+	od;
+
+	return cl_ints;
+end;
+
+
+RebuildClassIntersections := function(cl_ints_lst, cmb, min_cl_ints, len)
+	cl_ints_lst := List(cl_ints_lst, cl_ints -> MultiplyModulus(cl_ints, cmb, Length(cmb.ceiling)));
+	cl_ints_lst := UncombineInverseClasses(cl_ints_lst, cmb.idx_inv_cls_lst);
+	cl_ints_lst := List(cl_ints_lst, cl_ints -> cl_ints + min_cl_ints);
+
+	return cl_ints_lst;
+end;
+
 AllClassIntersections := function(pds_data, min_cl_ints, moduli)
 	local
 	cmb, fltr,
 	ceiling,
-	cl_ints_lst;
+	cl_ints, cl_ints_lst;
 
 	ceiling := List(pds_data.cls, Size);
 
@@ -216,7 +234,7 @@ AllClassIntersections := function(pds_data, min_cl_ints, moduli)
 	fltr := Filtration(pds_data, cmb, min_cl_ints);
 	
 	cl_ints_lst := SearchClassIntersections(pds_data, fltr, cmb, min_cl_ints);
-	cl_ints_lst := UncombineInverseClasses(cl_ints_lst, cmb.idx_inv_cls_lst);
+	cl_ints_lst := RebuildClassIntersections(cl_ints_lst, cmb, min_cl_ints, Length(cmb.ceiling));
 
 	return cl_ints_lst;
 end;
