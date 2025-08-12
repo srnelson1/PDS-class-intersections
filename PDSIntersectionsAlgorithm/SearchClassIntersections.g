@@ -171,7 +171,7 @@ SearchClassIntersections := function(pds_data, fltr, cmb, min_cl_ints)
 
 	cl_ints_lst := [];
 
-	len := Length(cmb.ceiling);
+	len := cmb.len;
 
 	partn_moduli_lst := Unique(cmb.moduli);
 	partn_posns_lst := PartitionPositionsList(cmb.moduli, partn_moduli_lst);
@@ -231,12 +231,10 @@ AllClassIntersections := function(pds_data, min_cl_ints, moduli)
 
 	ceiling := List(pds_data.cls, Size);
 
-	Error("test.");
 	cmb := CombineInverseClasses(pds_data, ceiling, min_cl_ints, moduli);
-	Error("testing..");
 	cmb.ceiling := cmb.ceiling - cmb.min_cl_ints;
 	cmb.ceiling := List([1.. cmb.len], i -> Int( cmb.ceiling[i] / cmb.moduli[i]));
-	Error("test");
+
 	fltr := Filtration(pds_data, cmb, min_cl_ints);
 	
 	cl_ints_lst := SearchClassIntersections(pds_data, fltr, cmb, min_cl_ints);
