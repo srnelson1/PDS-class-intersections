@@ -49,6 +49,7 @@ NormalizeModSums := function(mod_sums_lst, partn_moduli_lst)
 	return mod_sums_lst;
 end;
 
+
 StackCeiling := function(ceiling, partn_posns_lst, num_partns)
 	local stack_ceiling, i;
 
@@ -93,7 +94,6 @@ ModSumsOfK := function(k, ceiling, partn_posns_lst, partn_moduli_lst)
 
 	return NormalizeModSums(mod_sums_lst, partn_moduli_lst);
 end;
-
 
 ####################################################################################################################
 
@@ -143,7 +143,6 @@ end;
 
 ####################################################################################################################
 
-
 BuildList := function(mod_sum, partn_ceiling_lst, len)
 	local lst, i;
 
@@ -155,7 +154,6 @@ BuildList := function(mod_sum, partn_ceiling_lst, len)
 
 	return lst;
 end;
-
 
 ####################################################################################################################
 
