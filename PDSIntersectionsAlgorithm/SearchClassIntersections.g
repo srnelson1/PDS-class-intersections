@@ -191,9 +191,9 @@ SearchClassIntersections := function(pds_data, fltr, cmb, min_cl_ints)
 		while not finished do 
 			finished := NextClassIntersection(lst, base_lst, partn_ceiling_lst, partn_space_lsts, partn_posns_lst, len, cycles);
 
-#			if ValidClassIntersection(fltr, cmb, lst) then
+			if ValidClassIntersection(fltr, cmb, lst) then
 				Append(cl_ints_lst, [ ShallowCopy(lst) ] );
-#			fi;
+			fi;
 		od;
 	od;
 
@@ -235,7 +235,7 @@ AllClassIntersections := function(pds_data, min_cl_ints, moduli)
 	cmb.ceiling := cmb.ceiling - cmb.min_cl_ints;
 	cmb.ceiling := List([1.. cmb.len], i -> Int( cmb.ceiling[i] / cmb.moduli[i]));
 
-	fltr := Filtration(pds_data, cmb, min_cl_ints);
+	fltr := Filtration(pds_data, cmb);
 	
 	cl_ints_lst := SearchClassIntersections(pds_data, fltr, cmb, min_cl_ints);
 	cl_ints_lst := RebuildClassIntersections(cl_ints_lst, cmb, min_cl_ints);

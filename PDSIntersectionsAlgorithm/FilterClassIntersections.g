@@ -1,58 +1,51 @@
 
 
-FiltrationMatrix := function(cmb, v)
-	local fltr_mat, i;
+FiltrationMatrix := function(pds_data, cmb)
+	local mat, i;
 
 	for i in [1..Length(cmb.moduli)] do
-		if cmb.moduli[i] >= v then
+		if cmb.moduli[i] >= pds_data.v then
 			cmb.moduli[i] := 1;
 		fi;
 	od;
 
-	fltr_mat := TransposedMat(cmb.char_mat);
-	fltr_mat := List([1..Length(cmb.moduli)], i -> cmb.moduli[i] * fltr_mat[i]);
-	fltr_mat := TransposedMat(fltr_mat);
+	mat := TransposedMat(cmb.char_mat);
+	mat := List([1..Length(cmb.moduli)], i -> cmb.moduli[i] * mat[i]);
+	mat := TransposedMat(mat);
 
-	return fltr_mat;
+	return mat;
 end;
 
 
-FiltrationList := function(pds_data, cmb_char_mat, min_cl_ints)
-	local
-	degs, deg,
-	evalue_degs_lst,
-	fltr_lst,
-	mod_output,
-	i,
-	x;
+FiltrationList := function(pds_data, cmb)
+	local 
+	deg, degs,
+	chi_D_lst,
+	lst,
+	x,
+	i;
 
-	degs := List(cmb_char_mat, row -> row[1]);
-	evalue_degs_lst := [];
+	degs := List(cmb.char_mat, x -> x[1]);
+	chi_D_lst := [];
 
 	for deg in Unique(degs) do
-		evalue_degs_lst[deg] := List([0..deg], x -> pds_data.theta1 * x + pds_data.theta2 * (deg-x));
+	    chi_D_lst[deg] := List([0..deg], x -> pds_data.theta1*x + pds_data.theta2*(deg-x));
 	od;
 
-	fltr_lst := [];
+	lst := [];
 
-	for i in [1..Length(cmb_char_mat)] do
-		mod_output := (cmb_char_mat * min_cl_ints)[i];
-		fltr_lst[i] := List(evalue_degs_lst[degs[i]], x -> x - mod_output);
+	for i in [1..Length(cmb.char_mat)] do
+	    lst[i] := List(chi_D_lst[degs[i]], x -> x - (cmb.char_mat * cmb.min_cl_ints)[i]);
 	od;
 
-	return fltr_lst;
+	return lst;
 end;
 
 
-Filtration := function(pds_data, cmb, min_cl_ints)
-	local fltr_lst, fltr_mat;
-
-	fltr_mat := FiltrationMatrix(cmb, pds_data.v);
-	fltr_lst := FiltrationList(pds_data, cmb.char_mat, min_cl_ints);
-
+Filtration := function(pds_data, cmb)
 	return rec(
-		fltr_mat := fltr_mat,
-		fltr_lst := fltr_lst
+		mat := FiltrationMatrix(pds_data, cmb),
+		lst := FiltrationList(pds_data, cmb)
 	);
 end;
 
@@ -60,11 +53,11 @@ end;
 ####################################################################################################################
 
 
-FilterOutput := function(fltr_mat, fltr_lst, cl_ints)
+FilterOutput := function(fltr, cl_ints)
 	local i;
 
-	for i in [2..Length(fltr_mat)] do
-		if not fltr_mat[i] * cl_ints in fltr_lst[i] then 
+	for i in [2..Length(fltr.mat)] do
+		if not fltr.mat[i] * cl_ints in fltr.lst[i] then 
 			return false;
 		fi;
 	od;
@@ -96,7 +89,7 @@ end;
 
 ValidClassIntersection := function(fltr, cmb, cl_ints)
 
-	if not FilterOutput(fltr.fltr_mat, fltr.fltr_lst, cl_ints) then
+	if not FilterOutput(fltr, cl_ints) then
 		return false;
 	fi;
 
