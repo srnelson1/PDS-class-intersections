@@ -1,13 +1,13 @@
 #The principle function in this file is PreliminaryIntersections, which returns a vector such that the ith index consists
-#of the minimal possible conjugacy class PDS intersection for conjugacy class i.
+#of the minimal possible conjugacy class PDS int for conjugacy class i.
 #Here, we apply in particular [NS] 3.9 (Thesis 5.11) and [NS] 4.1 (Thesis 6.1).
 
 ##############################################################################################################
 ##############################################################################################################
 #Let H be the largest subgroup of the linear group of G such that |H| is coprime to sqrt_delta. Set N to be the
-#intersection of all kernels of the characters of H. The functions ClassesOutsideN and NonNClIntersections take all
+#int of all kernels of the characters of H. The functions ClassesOutsideN and NonNClIntersections take all
 #conjugacy classes not contained by N,and applies NS 3.9 (Thesis 5.11) to compute the conjugacy class
-#intersection sizes for those classes.
+#int sizes for those classes.
 
 #This collects all classes which are not contained N, and which consists of elements with order coprime to delta
 ClassesOutsideN := function(group, char_mat, cls, sqrt_delta)
@@ -45,53 +45,53 @@ ClassesOutsideN := function(group, char_mat, cls, sqrt_delta)
 end;
 
 
-#We use [NS] 3.9 (Thesis 5.11) to compute the conjugacy class intersection sizes for those classes which are not contained in N.
+#We use [NS] 3.9 (Thesis 5.11) to compute the conjugacy class int sizes for those classes which are not contained in N.
 #and which consist of elements with order coprime to delta.
 NonNClIntersections := function(group, char_mat, cls, v, k, theta1, theta2)
 	local 
 	cl,
 	non_N_cls, #cls not contained by N
 	centralizer_size,
-	theta1_cl_intersection_size, theta2_cl_intersection_size, #equals the cl intersection size depending on choice of theta1, theta2
-	non_N_cl_intersection, #records intersection sizes corresponding to theta1, theta2 for a particular cl not in N
-	non_N_cl_intersection_lst; #records intersection sizes corresponding to theta1, theta2 for all cl not in N
+	theta1_cl_int_size, theta2_cl_int_size, #equals the cl int size depending on choice of theta1, theta2
+	non_N_cl_int, #records int sizes corresponding to theta1, theta2 for a particular cl not in N
+	non_N_cl_int_lst; #records int sizes corresponding to theta1, theta2 for all cl not in N
 
 	non_N_cls := ClassesOutsideN(group, char_mat, cls, theta1-theta2);
-	non_N_cl_intersection_lst := [];
+	non_N_cl_int_lst := [];
 
 	for cl in non_N_cls do
 		centralizer_size := v/Size(cl);
-		theta1_cl_intersection_size := (k - theta1)/centralizer_size; #see [NS] 3.9 (Thesis 5.11) for this formula.
-		theta2_cl_intersection_size := (k - theta2)/centralizer_size;
+		theta1_cl_int_size := (k - theta1)/centralizer_size; #see [NS] 3.9 (Thesis 5.11) for this formula.
+		theta2_cl_int_size := (k - theta2)/centralizer_size;
 
-		non_N_cl_intersection := [];
+		non_N_cl_int := [];
 
-		if IsInt(theta1_cl_intersection_size) and IsInt(theta2_cl_intersection_size) then
-			non_N_cl_intersection[1] := theta1_cl_intersection_size;
-			non_N_cl_intersection[2] := theta2_cl_intersection_size;
+		if IsInt(theta1_cl_int_size) and IsInt(theta2_cl_int_size) then
+			non_N_cl_int[1] := theta1_cl_int_size;
+			non_N_cl_int[2] := theta2_cl_int_size;
 
-		elif IsInt(theta1_cl_intersection_size) then
-			non_N_cl_intersection[1] := theta1_cl_intersection_size;
-			non_N_cl_intersection[2] := -1; #if theta2 has invalid intersection, place -1
+		elif IsInt(theta1_cl_int_size) then
+			non_N_cl_int[1] := theta1_cl_int_size;
+			non_N_cl_int[2] := -1; #if theta2 has invalid int, place -1
 
-		elif IsInt(theta2_cl_intersection_size) then
-			non_N_cl_intersection[1] := -1;
-			non_N_cl_intersection[2] := theta2_cl_intersection_size; #if theta1 has invalid intersection, place -1
+		elif IsInt(theta2_cl_int_size) then
+			non_N_cl_int[1] := -1;
+			non_N_cl_int[2] := theta2_cl_int_size; #if theta1 has invalid int, place -1
 
 		else
 			return fail;
 		fi;
 
-		non_N_cl_intersection_lst[Position(cls, cl)] := non_N_cl_intersection;
+		non_N_cl_int_lst[Position(cls, cl)] := non_N_cl_int;
 	od;
 
-	return non_N_cl_intersection_lst;
+	return non_N_cl_int_lst;
 end;
 
 ##############################################################################################################
 ##############################################################################################################
 
-#for a given prime power q, we apply [NS] 4.1 (Thesis 6.1) to calculate the modular intersection size for each conj class.
+#for a given prime power q, we apply [NS] 4.1 (Thesis 6.1) to calculate the modular int size for each conj class.
 ModularIntersections := function(centralizer_sizes,  k, theta2, q)
 	local 
 	cl_mod_q_ints, #class ints mod q
@@ -101,22 +101,22 @@ ModularIntersections := function(centralizer_sizes,  k, theta2, q)
 
 	for i in [1..Length(centralizer_sizes)] do
 		if centralizer_sizes[i] mod q <> 0 then #i for which  (k-theta2)/centralizer_sizes[i] is computable mod q (these correspond to p_bound_values)
-			cl_mod_q_ints[i] := (k-theta2)/centralizer_sizes[i] mod q; #compute intersection mod q.
+			cl_mod_q_ints[i] := (k-theta2)/centralizer_sizes[i] mod q; #compute int mod q.
 		fi;
 	od;
 
 	return cl_mod_q_ints;
 end;
 
-#We use ModularIntersections to get, for a specific conjugacy class, each intersection size of that conjugacy class mod q.
-#We then use the Chinese Remainder Theorem to compute the largest possible minimum intersection size for each conjugacy class.
+#We use ModularIntersections to get, for a specific conjugacy class, each int size of that conjugacy class mod q.
+#We then use the Chinese Remainder Theorem to compute the largest possible minimum int size for each conjugacy class.
 ModularClassIntersections := function(char_table, v, k, theta1, theta2)
 	local 
 	num_cls,
 	centralizer_sizes,
 	primes_delta, prime_powers_delta, #primes and prime powers in the decomposition of delta
 	q, #a particular prime power dividing delta
-	cl_mod_q_ints, #lst for intersection of each cl with D mod q.
+	cl_mod_q_ints, #lst for int of each cl with D mod q.
 	cl_mod_q_ints_rec, #lst of all cl_mod_q_ints for each q.
 	mod_cl_ints, #cl ints such that mod_cl_ints[i] = cl_mod_q_ints[i] mod q for all i and q.
 	moduli, #values q used to calculate mod_cl_ints[i] for each i.
@@ -131,14 +131,14 @@ ModularClassIntersections := function(char_table, v, k, theta1, theta2)
 
 	cl_mod_q_ints_rec := rec( 1 := ListWithIdenticalEntries(num_cls, 0));
 
-	for q in prime_powers_delta do #Apply [NS] 4.1 (Thesis 6.1) to get mod q intersection for each conjugacy class
+	for q in prime_powers_delta do #Apply [NS] 4.1 (Thesis 6.1) to get mod q int for each conjugacy class
 		cl_mod_q_ints_rec.(q) := ModularIntersections(centralizer_sizes, k, theta2, q);
 	od;
 	Append(prime_powers_delta, [1]);
 
 
-	mod_cl_ints := EmptyPlist(num_cls); #will contain largest possible minimum intersection size for each conjugacy class using Chinese Remainder Theorem
-	moduli := EmptyPlist(num_cls); #contains Chinese Remainder Theorem value for which the ith intersection is valid.
+	mod_cl_ints := EmptyPlist(num_cls); #will contain largest possible minimum int size for each conjugacy class using Chinese Remainder Theorem
+	moduli := EmptyPlist(num_cls); #contains Chinese Remainder Theorem value for which the ith int is valid.
 
 	for i in [2..num_cls] do
 		defined_q_values := Filtered(prime_powers_delta, q -> IsBound( cl_mod_q_ints_rec.(q)[i]) ); #values for which centralizer_sizes[i] mod q <> 0
@@ -183,17 +183,17 @@ end;
 ##############################################################################################################
 ##############################################################################################################
 
-#This function calls ModularClassIntersections and NonNClIntersections to generate two distinct intersection
-#lsts using [NS] 4.1 (Thesis 6.1) and [NS] 3.8 (Thesis 5.11). It then combines these lasts into one, preliminary intersection called prelim_ints
+#This function calls ModularClassIntersections and NonNClIntersections to generate two distinct int
+#lsts using [NS] 4.1 (Thesis 6.1) and [NS] 3.8 (Thesis 5.11). It then combines these lasts into one, preliminary int called prelim_ints
 #such that all values in prelim_ints satisfy [NS] 4.1 (Thesis 6.1) and [NS] 3.8 (Thesis 5.11).
 #This function also returns a secondary lst, moduli, consisting of the largest modulus x such that if c is the size of the
-#intersection of the ith conjugacy class with a possible PDS, then prelim_ints[i] = c mod x.
+#int of the ith conjugacy class with a possible PDS, then prelim_ints[i] = c mod x.
 MinimalIntersections := function(pds_data)
 	local
 	group, char_table, char_mat, cls, v, k, theta1, theta2,
 	moduli, mod_cl_ints,
-	nonN_cl_intersection_lst, #lst of all ints for non N conjugacy class with elements of order coprime to delta.
-	theta1_cl_intersection, theta2_cl_intersection, #class ints of non N conjugacy classes for theta1, theta2.
+	nonN_cl_int_lst, #lst of all ints for non N conjugacy class with elements of order coprime to delta.
+	theta1_cl_int, theta2_cl_int, #class ints of non N conjugacy classes for theta1, theta2.
 	min_cl_ints, min_cl_ints_lst, #lst of class ints
 	dummy_lst, x, #dummy variables
 	i;
@@ -211,10 +211,10 @@ MinimalIntersections := function(pds_data)
 	mod_cl_ints := x.mod_cl_ints;
 	moduli := x.moduli;
 
-	nonN_cl_intersection_lst := NonNClIntersections(group, char_mat, cls, v, k, theta1, theta2);
+	nonN_cl_int_lst := NonNClIntersections(group, char_mat, cls, v, k, theta1, theta2);
 
-	if nonN_cl_intersection_lst = fail then #If non N ints do not exist, we communicate that it failed.
-		return rec(min_cl_ints_lst := mod_cl_ints, 
+	if nonN_cl_int_lst = fail then #If non N ints do not exist, we communicate that it failed.
+		return rec(min_cl_ints_lst := min_cl_ints_lst, 
 				   moduli := moduli,
 				   successful := false
 				   );
@@ -223,41 +223,43 @@ MinimalIntersections := function(pds_data)
    min_cl_ints_lst := [[]];
 
 	for i in [1..Length(ConjugacyClasses(char_table))] do
-		if IsBound(nonN_cl_intersection_lst[i]) then #if nonN intersection is defined for index i
-			theta1_cl_intersection := nonN_cl_intersection_lst[i][1]; #then grab theta1, theta2 ints
-			theta2_cl_intersection := nonN_cl_intersection_lst[i][2];
+		if IsBound(nonN_cl_int_lst[i]) then #if nonN int is defined for index i
+			theta1_cl_int := nonN_cl_int_lst[i][1]; #then grab theta1, theta2 ints
+			theta2_cl_int := nonN_cl_int_lst[i][2];
 
-			if theta1_cl_intersection <> -1 and theta2_cl_intersection <> -1 then #Finally, add to all lsts the theta1, theta2 ints (if they exist)
-				dummy_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta1_cl_intersection]));
-				min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta2_cl_intersection]));
+			if theta1_cl_int <> -1 and theta2_cl_int <> -1 then #Finally, add to all lsts the theta1, theta2 ints (if they exist)
+				dummy_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta1_cl_int]));
+				min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta2_cl_int]));
 
 				min_cl_ints_lst := Concatenation(min_cl_ints_lst, dummy_lst);
 				
-			elif theta1_cl_intersection <> -1 then
-				min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta1_cl_intersection]));
+			elif theta1_cl_int <> -1 then
+				min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta1_cl_int]));
 
 			else
-				min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta2_cl_intersection]));
+				min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [theta2_cl_int]));
 
 			fi;
 
 			moduli[i] := k;
 		else
-			min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [mod_cl_ints[i]]) ); #otherwise, set intersection to modular value
+			min_cl_ints_lst := List(min_cl_ints_lst, x -> Concatenation(x, [mod_cl_ints[i]]) ); #otherwise, set int to modular value
 		fi;
 	od;
 	
 	for min_cl_ints in min_cl_ints_lst do #Remove invalid min_cl_ints
 		if not IsValidPreliminaryIntersection(char_mat, min_cl_ints, k, (theta1-theta2)/Gcd(v, theta1-theta2)) then
-			return rec(min_cl_ints_lst := min_cl_ints_lst, 
-					   moduli := moduli,
-					   successful := false
-					   );
+			return rec(
+					cl_ints_lst := min_cl_ints_lst,
+					moduli := moduli,
+					successful := false
+				  );
 		fi;
 	od;
 
-	return rec(min_cl_ints_lst := min_cl_ints_lst,
-			   moduli := moduli,
-			   successful := true
-			   );
+	return rec(
+			cl_ints_lst := min_cl_ints_lst,
+			moduli := moduli,
+			successful := true
+		  );
 end;
