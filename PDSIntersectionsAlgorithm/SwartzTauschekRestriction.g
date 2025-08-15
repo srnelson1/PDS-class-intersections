@@ -1,36 +1,34 @@
 
-#Testing Swartz-Tauschek modularity restrictions.
+#Testing Swartz-Tauschek modular restrictions.
 STRestriction := function(group, v, k, lambda, mu)
-	local sqrtDelta, theta1, theta2, gamtest, gamcomptest;
+	local
+	sqrt_delta, theta1, theta2,
+	st_test, st_comptest;
 
-	sqrtDelta:= RootInt( (lambda - mu)^2 + 4*(k - mu) );
-	theta1:= (lambda - mu + sqrtDelta)/2;
-	theta2:= (lambda - mu - sqrtDelta)/2;
+	sqrt_delta := RootInt( (lambda - mu)^2 + 4 * (k - mu) );
+	theta1 := (lambda - mu + sqrt_delta)/2;
+	theta2 := (lambda - mu - sqrt_delta)/2;
 
 
-
-	if RemInt(mu - theta2*(theta1 + 1), sqrtDelta) = 0 then
-		gamtest:= true;
+	if (mu - theta2*(theta1 + 1)) mod sqrt_delta = 0 then
+		st_test := true;
 	else
-		gamtest:= false;
+		st_test := false;
 	fi;
 
-	#Apply the test to the complement.
-
-	if RemInt(v - 2*k + lambda - theta2*(theta1 + 1), sqrtDelta) = 0 then
-		gamcomptest:= true;
+	if (v - 2*k + lambda - theta2*(theta1 + 1)) mod sqrt_delta = 0 then
+		st_comptest := true;
 	else
-		gamcomptest:= false;
+		st_comptest := false;
 	fi;		
 
-	#Return the results. Which graph "failed" the test (and would thus
-	#need to have every conjugacy class meet the PDS) is lsted in parentheses.
 
-	if ( not gamtest ) and ( not gamcomptest ) then
+	if ( not st_test ) and ( not st_comptest ) then
 		if Size( Center(group) ) <> 1 then
 			return false;
 		fi;
 	fi;
+
 
 	return true;
 end;
