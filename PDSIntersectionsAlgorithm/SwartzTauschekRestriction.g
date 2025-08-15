@@ -26,7 +26,7 @@ STRestriction := function(group, v, k, lambda, mu)
 	#Return the results. Which graph "failed" the test (and would thus
 	#need to have every conjugacy class meet the PDS) is lsted in parentheses.
 
-	if not gamcomptest then
+	if ( not gamtest ) and ( not gamcomptest ) then
 		if Size( Center(group) ) <> 1 then
 			return false;
 		fi;
@@ -34,3 +34,4 @@ STRestriction := function(group, v, k, lambda, mu)
 
 	return true;
 end;
+
