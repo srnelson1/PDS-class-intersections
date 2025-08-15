@@ -66,18 +66,18 @@ FilterOutput := function(fltr, cl_ints)
 end;
 
 
-FilterInverseClasses := function(cl_ints, idx_inv_cls_lst, ord_2_cls_lst)
+FilterInverseClasses := function(cmb, cl_ints)
 	local 
 	fltrd_cl_ints_lst,
 	idx_inv_cls,
 	keep_int,
 	i;
 
-	for i in [2..Length(idx_inv_cls_lst)] do
-		idx_inv_cls := idx_inv_cls_lst[i];
+	for i in [2..Length(cmb.idx_inv_cls_lst)] do
+		idx_inv_cls := cmb.idx_inv_cls_lst[i];
 
-		if idx_inv_cls[1] = idx_inv_cls[2] and ord_2_cls_lst[i] = false then
-			if cl_ints[idx_inv_cls[1]] mod 2 <> 0 then
+		if idx_inv_cls[1] = idx_inv_cls[2] and cmb.ord_2_cls_lst[i] = false then
+			if (cl_ints[i] + cmb.min_cl_ints[i]) mod 2 <> 0 then
 				return false;
 			fi;
 		fi;
@@ -93,9 +93,9 @@ ValidClassIntersection := function(fltr, cmb, cl_ints)
 		return false;
 	fi;
 
-#	if not FilterInverseClasses(cl_ints, cmb.idx_inv_cls_lst, cmb.ord_2_cls_lst) then
-#		return false;
-#	fi;
+	if not FilterInverseClasses(cmb, cl_ints) then
+		return false;
+	fi;
 
 	return true;
 end;
