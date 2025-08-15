@@ -1,4 +1,4 @@
-Read("GeneralCoprimeRelations.g");
+Read("SwartzTauschekRestriction.g");
 Read("SearchClassIntersections.g");
 Read("PreliminaryIntersections.g");
 
@@ -18,7 +18,7 @@ BuildPDSData := function(group, v, k, lambda, mu)
 		group := group,
 		char_table := char_table,
 		irr := irr, 
-		char_mat := List(irr, row -> List(row, x -> x));
+		char_mat := List(irr, row -> List(row, x -> x)),
 		cls := ConjugacyClasses(char_table),
 		v := v,
 		k := k,
@@ -34,9 +34,9 @@ PDSClassIntersections := function(group, v, k, lambda, mu)
 	pds_data, min,
 	min_cl_ints, cl_ints_lst;
 
-	if not TestPDSParam(v, k, lambda, mu) do
+	if not STRestriction(group, v, k, lambda, mu) then
 		return [];
-	od;
+	fi;
 
 	pds_data := BuildPDSData(group, v, k, lambda, mu);
 	min := MinimalIntersections(pds_data);
