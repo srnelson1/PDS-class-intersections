@@ -216,8 +216,7 @@ MinimalIntersections := function(pds_data)
 	if nonN_cl_intersection_lst = fail then #If non N ints do not exist, we communicate that it failed.
 		return rec(min_cl_ints_lst := mod_cl_ints, 
 				   moduli := moduli,
-				   successful := false,
-				   fail_reason := "NonNClIntersections Failed"
+				   successful := false
 				   );
 	fi;
 
@@ -252,15 +251,13 @@ MinimalIntersections := function(pds_data)
 		if not IsValidPreliminaryIntersection(char_mat, min_cl_ints, k, (theta1-theta2)/Gcd(v, theta1-theta2)) then
 			return rec(min_cl_ints_lst := min_cl_ints_lst, 
 					   moduli := moduli,
-					   successful := false,
-					   fail_reason := "IsValidPreliminaryIntersection Failed" #if everything fails, return unsuccessful
+					   successful := false
 					   );
 		fi;
 	od;
 
 	return rec(min_cl_ints_lst := min_cl_ints_lst,
 			   moduli := moduli,
-			   successful := true,
-			   fail_reason := "None"
+			   successful := true
 			   );
 end;
