@@ -5,7 +5,7 @@ STRestriction := function(group, v, k, lambda, mu)
 	sqrt_delta, theta1, theta2,
 	st_test, st_comptest;
 
-	sqrt_delta := RootInt( (lambda - mu)^2 + 4 * (k - mu) );
+	sqrt_delta := RootInt( (lambda - mu)^2 + 4*(k - mu) );
 	theta1 := (lambda - mu + sqrt_delta)/2;
 	theta2 := (lambda - mu - sqrt_delta)/2;
 
@@ -32,4 +32,3 @@ STRestriction := function(group, v, k, lambda, mu)
 
 	return true;
 end;
-
