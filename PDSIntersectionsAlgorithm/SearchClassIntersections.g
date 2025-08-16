@@ -220,7 +220,7 @@ RebuildClassIntersections := function(cl_ints_lst, cmb, min_cl_ints)
 end;
 
 
-AllClassIntersections := function(pds_data, min_cl_ints, moduli)
+AllClassIntersections := function(pds_data, min)
 	local
 	cmb, fltr,
 	ceiling,
@@ -229,14 +229,14 @@ AllClassIntersections := function(pds_data, min_cl_ints, moduli)
 
 	ceiling := List(pds_data.cls, Size);
 
-	cmb := CombineInverseClasses(pds_data, ceiling, min_cl_ints, moduli);
+	cmb := CombineInverseClasses(pds_data, ceiling, min);
 	cmb.ceiling := cmb.ceiling - cmb.min_cl_ints;
 	cmb.ceiling := List([1.. cmb.len], i -> Int( cmb.ceiling[i] / cmb.moduli[i]));
 
 	fltr := Filtration(pds_data, cmb);
 	
-	cl_ints_lst := SearchClassIntersections(pds_data, fltr, cmb, min_cl_ints);
-	cl_ints_lst := RebuildClassIntersections(cl_ints_lst, cmb, min_cl_ints);
+	cl_ints_lst := SearchClassIntersections(pds_data, fltr, cmb, min.cl_ints);
+	cl_ints_lst := RebuildClassIntersections(cl_ints_lst, cmb, min.cl_ints);
 
 	return cl_ints_lst;
 end;

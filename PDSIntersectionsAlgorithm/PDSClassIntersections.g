@@ -1,15 +1,21 @@
 Read("SwartzTauschekRestriction.g");
 Read("SearchClassIntersections.g");
-Read("PreliminaryIntersections.g");
+Read("MinimalIntersections.g");
 
 
 BuildPDSData := function(group, v, k, lambda, mu)
-	local char_table, irr,
+	local
+	char_table, irr,
+	theta1, theta2,
 	row, x;
 
 	if IsList(group) then
 		group := SmallGroup(group);
 	fi;
+
+	theta1 := (lambda - mu + RootInt((lambda - mu)^2 + 4*(k - mu), 2))/2;
+	theta2 := (lambda - mu - RootInt((lambda - mu)^2 + 4*(k - mu), 2))/2;
+	
 
 	char_table := CharacterTable(group);
 	irr := Irr(char_table); # We guarantee ordering is based on char_table
@@ -22,8 +28,9 @@ BuildPDSData := function(group, v, k, lambda, mu)
 		cls := ConjugacyClasses(char_table),
 		v := v,
 		k := k,
-		theta1 := (lambda - mu + RootInt((lambda - mu)^2 + 4*(k - mu), 2))/2,
-		theta2 := (lambda - mu - RootInt((lambda - mu)^2 + 4*(k - mu), 2))/2
+		theta1 := theta1,
+		theta2 := theta2,
+		cp_delta := Product( Filtered( PrimeDivisors( theta1-theta2), x -> v mod x <> 0 ) )
 	);
 end;
 
@@ -31,20 +38,21 @@ end;
 #Finds possible PDS Class Intersection of a particular group.
 PDSClassIntersections := function(group, v, k, lambda, mu)
 	local
-	pds_data, min,
-	min_cl_ints, cl_ints_lst;
+	pds_data,
+	min_lst, min,
+	cl_ints_lst;
 
 	if not STRestriction(group, v, k, lambda, mu) then
 		return [];
 	fi;
 
 	pds_data := BuildPDSData(group, v, k, lambda, mu);
-	min := MinimalIntersections(pds_data);
+	min_lst := MinimalIntersections(pds_data);
 
 	cl_ints_lst := [];
 
-	for min_cl_ints in min.cl_ints_lst do
-		Append(cl_ints_lst, AllClassIntersections(pds_data, min_cl_ints, min.moduli));
+	for min in min_lst do
+		Append(cl_ints_lst, AllClassIntersections(pds_data, min));
 	od;
 
 	return cl_ints_lst;
