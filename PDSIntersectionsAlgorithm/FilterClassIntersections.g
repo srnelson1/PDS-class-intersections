@@ -88,7 +88,6 @@ end;
 
 
 ValidClassIntersection := function(fltr, cmb, cl_ints)
-
 	if not FilterOutput(fltr, cl_ints) then
 		return false;
 	fi;

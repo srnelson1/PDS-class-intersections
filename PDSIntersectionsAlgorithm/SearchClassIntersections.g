@@ -157,7 +157,7 @@ end;
 
 ####################################################################################################################
 
-SearchClassIntersections := function(pds_data, fltr, cmb, min_cl_ints)
+SearchClassIntersections := function(pds_data, fltr, cmb, min)
 	local 
 	cl_ints_lst,
 	len,
@@ -178,7 +178,7 @@ SearchClassIntersections := function(pds_data, fltr, cmb, min_cl_ints)
 
 	cycles := Length(partn_moduli_lst);
 
-	mod_sums_lst := ModSumsOfK(pds_data.k - Sum(min_cl_ints), cmb.ceiling, partn_posns_lst, partn_moduli_lst);
+	mod_sums_lst := ModSumsOfK(pds_data.k - Sum(min.cl_ints), cmb.ceiling, partn_posns_lst, partn_moduli_lst);
 
 	for mod_sum in mod_sums_lst do
 		lst := BuildList(mod_sum, partn_ceiling_lst, len);
@@ -211,10 +211,10 @@ MultiplyModulus := function(cl_ints, cmb)
 end;
 
 
-RebuildClassIntersections := function(cl_ints_lst, cmb, min_cl_ints)
+RebuildClassIntersections := function(pds_data, cmb, min, cl_ints_lst)
 	cl_ints_lst := List(cl_ints_lst, cl_ints -> MultiplyModulus(cl_ints, cmb));
-	cl_ints_lst := UncombineInverseClasses(cl_ints_lst, cmb.idx_inv_cls_lst);
-	cl_ints_lst := List(cl_ints_lst, cl_ints -> cl_ints + min_cl_ints);
+	cl_ints_lst := UncombineClassIntersections(pds_data.cls, cl_ints_lst);
+	cl_ints_lst := List(cl_ints_lst, cl_ints -> cl_ints + min.cl_ints);
 
 	return cl_ints_lst;
 end;
@@ -229,14 +229,15 @@ AllClassIntersections := function(pds_data, min)
 
 	ceiling := List(pds_data.cls, Size);
 
-	cmb := CombineInverseClasses(pds_data, ceiling, min);
+	cmb := BuildCmb(pds_data, ceiling, min);
 	cmb.ceiling := cmb.ceiling - cmb.min_cl_ints;
 	cmb.ceiling := List([1.. cmb.len], i -> Int( cmb.ceiling[i] / cmb.moduli[i]));
+	SelfInverseCombModuli(pds_data, cmb);
 
 	fltr := Filtration(pds_data, cmb);
 	
-	cl_ints_lst := SearchClassIntersections(pds_data, fltr, cmb, min.cl_ints);
-	cl_ints_lst := RebuildClassIntersections(cl_ints_lst, cmb, min.cl_ints);
+	cl_ints_lst := SearchClassIntersections(pds_data, fltr, cmb, min);
+	cl_ints_lst := RebuildClassIntersections(pds_data, cmb, min, cl_ints_lst);
 
 	return cl_ints_lst;
 end;
