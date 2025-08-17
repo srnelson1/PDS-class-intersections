@@ -79,6 +79,8 @@ ExtNClIntersections := function(pds_data)
 		Append(theta_ints, [theta_lst]);
 	od;
 
+	theta_ints := Unique(theta_ints);
+
 	return theta_ints;
 end;
 
