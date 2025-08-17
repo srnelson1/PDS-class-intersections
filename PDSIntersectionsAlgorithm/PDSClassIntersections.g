@@ -42,6 +42,10 @@ PDSClassIntersections := function(group, v, k, lambda, mu)
 	min_lst, min,
 	cl_ints_lst;
 
+	if IsList(group) then
+		group := SmallGroup(group);
+	fi;
+
 	if not STRestriction(group, v, k, lambda, mu) then
 		return [];
 	fi;
