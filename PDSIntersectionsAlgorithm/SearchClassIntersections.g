@@ -187,11 +187,11 @@ SearchClassIntersections := function(pds_data, fltr, cmb, min)
 		finished := false;
 
 		while not finished do 
-			finished := NextClassIntersection(lst, base_lst, partn_ceiling_lst, partn_space_lsts, partn_posns_lst, len, cycles);
-
-			if ValidClassIntersection(fltr, cmb, lst) then
+			if ValidClassIntersection(pds_data, fltr, cmb, lst) then
 				Append(cl_ints_lst, [ ShallowCopy(lst) ] );
 			fi;
+
+			finished := NextClassIntersection(lst, base_lst, partn_ceiling_lst, partn_space_lsts, partn_posns_lst, len, cycles);
 		od;
 	od;
 
