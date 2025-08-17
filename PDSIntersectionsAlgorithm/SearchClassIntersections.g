@@ -112,8 +112,11 @@ end;
 
 PartitionCeiling := function(cmb, partn_posns_lst, len)
 	local
+	ceiling,
 	partn_ceiling_lst,
 	i, j;
+
+	ceiling := List([1.. cmb.len], i -> Int( cmb.ceiling[i] / cmb.moduli[i]));
 
 	partn_ceiling_lst := EmptyPlist(Length(partn_posns_lst));
 
@@ -121,7 +124,7 @@ PartitionCeiling := function(cmb, partn_posns_lst, len)
 		partn_ceiling_lst[i] := ListWithIdenticalEntries(len, 0);
 
 		for j in partn_posns_lst[i] do
-			partn_ceiling_lst[i][j] := cmb.ceiling[j];
+			partn_ceiling_lst[i][j] := ceiling[j];
 		od;
 	od;
 
@@ -231,7 +234,6 @@ AllClassIntersections := function(pds_data, min)
 
 	cmb := BuildCmb(pds_data, ceiling, min);
 	cmb.ceiling := cmb.ceiling - cmb.min_cl_ints;
-	cmb.ceiling := List([1.. cmb.len], i -> Int( cmb.ceiling[i] / cmb.moduli[i]));
 	SelfInverseCombModuli(pds_data, cmb);
 
 	fltr := Filtration(pds_data, cmb);
