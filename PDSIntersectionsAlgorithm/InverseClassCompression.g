@@ -1,3 +1,4 @@
+Read("FilterClassIntersections.g");
 
 SelfInverseCombModuli := function(pds_data, cmb)
 	local
@@ -6,9 +7,9 @@ SelfInverseCombModuli := function(pds_data, cmb)
 	i;
 
 	idx_inv_cls_lst := IndexInverseClassList(pds_data.cls);
-	ord_2_cls_lst := List(pds_data.cls, x -> Order(Representative(x)) = 2);
+	ord_2_cls_lst := FiltrationEvenOrderList(pds_data);
 
-	for i in [1..Length(idx_inv_cls_lst)] do
+	for i in [1..Length(idx_inv_cls_lst)] do #Weird mixed indexing in this function. Probably a serious bug
 		if (idx_inv_cls_lst[i][1] = idx_inv_cls_lst[i][2]) and (ord_2_cls_lst[i] = false) then
 			if cmb.min_cl_ints[i] mod 2 = 0 and cmb.moduli[i] mod 2 = 1 then 
 				cmb.moduli[i] := 2*cmb.moduli[i];

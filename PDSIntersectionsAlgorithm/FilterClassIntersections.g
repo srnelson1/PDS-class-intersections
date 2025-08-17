@@ -1,4 +1,8 @@
+FiltrationEvenOrderList  := function(pds_data)
+	local x;
 
+	return List(pds_data.cls, x -> Order(Representative(x)) = 2);
+end;
 
 FiltrationMatrix := function(pds_data, cmb)
 	local mat, i;
@@ -66,17 +70,18 @@ FilterOutput := function(fltr, cl_ints)
 end;
 
 
-FilterInverseClasses := function(cmb, cl_ints)
+FilterInverseClasses := function(pds_data, cmb, cl_ints)
 	local 
-	fltrd_cl_ints_lst,
 	idx_inv_cls,
-	keep_int,
+	ord_2_cls_lst,
 	i;
+
+	ord_2_cls_lst := FiltrationEvenOrderList(pds_data);
 
 	for i in [2..Length(cmb.idx_inv_cls_lst)] do
 		idx_inv_cls := cmb.idx_inv_cls_lst[i];
 
-		if idx_inv_cls[1] = idx_inv_cls[2] and cmb.ord_2_cls_lst[i] = false then
+		if idx_inv_cls[1] = idx_inv_cls[2] and ord_2_cls_lst[i] = false then
 			if (cl_ints[i] + cmb.min_cl_ints[i]) mod 2 <> 0 then
 				return false;
 			fi;
@@ -87,12 +92,12 @@ FilterInverseClasses := function(cmb, cl_ints)
 end;
 
 
-ValidClassIntersection := function(fltr, cmb, cl_ints)
+ValidClassIntersection := function(pds_data, fltr, cmb, cl_ints)
 	if not FilterOutput(fltr, cl_ints) then
 		return false;
 	fi;
 
-	if not FilterInverseClasses(cmb, cl_ints) then
+	if not FilterInverseClasses(pds_data, cmb, cl_ints) then
 		return false;
 	fi;
 
