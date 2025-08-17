@@ -232,6 +232,7 @@ MinimalIntersections := function(pds_data)
 	i;
 
 	modular := ModularClassIntersections(pds_data);
+	#TODO: ADD EVEN ORDER MODULUS CHECKING
 	extN_ints_lst := ExtNClIntersections(pds_data);
 
 	min_lst := MinimalIntersectionsList(pds_data, modular, extN_ints_lst);

@@ -234,7 +234,6 @@ AllClassIntersections := function(pds_data, min)
 
 	cmb := BuildCmb(pds_data, ceiling, min);
 	cmb.ceiling := cmb.ceiling - cmb.min_cl_ints;
-	SelfInverseCombModuli(pds_data, cmb);
 
 	fltr := Filtration(pds_data, cmb);
 	
