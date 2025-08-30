@@ -58,30 +58,31 @@ end;
 ExtNClIntersections := function(pds_data)
 	local
 	extN_cls, extN_cls_idx,
-	valid_theta, theta, theta_ints, theta_lst,
+	extN_ints_lst, extN_ints,
+	valid_theta, theta,
 	i;
 
 	extN_cls := ClassesOutsideN(pds_data);
 	extN_cls_idx := List(extN_cls, cl -> Position(pds_data.cls, cl));
 
 	valid_theta := ValidTheta(pds_data, extN_cls);
-	theta_ints := [];
+	extN_ints_lst := [];
 
 	for theta in valid_theta do
-		theta_lst := EmptyPlist(Length(pds_data.cls));
+		extN_ints := EmptyPlist(Length(pds_data.cls));
 
 		for i in extN_cls_idx do
-			theta_lst[i] := pds_data.k - theta;
-			theta_lst[i] := theta_lst[i] / (pds_data.v / Size( pds_data.cls[i] ));
-			theta_lst[i] := Int(theta_lst[i]);
+			extN_ints[i] := pds_data.k - theta;
+			extN_ints[i] := extN_ints[i] / (pds_data.v / Size( pds_data.cls[i] ));
+			extN_ints[i] := Int(extN_ints[i]);
 		od;
 
-		Append(theta_ints, [theta_lst]);
+		Append(extN_ints_lst, [extN_ints]);
 	od;
 
-	theta_ints := Unique(theta_ints);
+	extN_ints_lst := Unique(extN_ints_lst);
 
-	return theta_ints;
+	return extN_ints_lst;
 end;
 
 ####################################################################################################################
