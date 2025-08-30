@@ -15,7 +15,6 @@ BuildPDSData := function(group, v, k, lambda, mu)
 
 	theta1 := (lambda - mu + RootInt((lambda - mu)^2 + 4*(k - mu), 2))/2;
 	theta2 := (lambda - mu - RootInt((lambda - mu)^2 + 4*(k - mu), 2))/2;
-	
 
 	char_table := CharacterTable(group);
 	irr := Irr(char_table); # We guarantee ordering is based on char_table
@@ -33,7 +32,6 @@ BuildPDSData := function(group, v, k, lambda, mu)
 		cp_delta := Product( Filtered( PrimeDivisors( theta1-theta2), x -> v mod x <> 0 ) )
 	);
 end;
-
 
 #Finds possible PDS Class Intersection of a particular group.
 PDSClassIntersections := function(group, v, k, lambda, mu)
