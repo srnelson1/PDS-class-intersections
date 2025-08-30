@@ -92,12 +92,9 @@ FilterInverseClasses := function(pds_data, cmb, cl_ints)
 end;
 
 
+
 ValidClassIntersection := function(pds_data, fltr, cmb, cl_ints)
 	if not FilterOutput(fltr, cl_ints) then
-		return false;
-	fi;
-
-	if not FilterInverseClasses(pds_data, cmb, cl_ints) then
 		return false;
 	fi;
 
