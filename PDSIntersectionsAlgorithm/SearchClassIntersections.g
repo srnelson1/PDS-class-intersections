@@ -183,6 +183,7 @@ SearchClassIntersections := function(pds_data, fltr, cmb, min)
 
 	mod_sums_lst := ModSumsOfK(pds_data.k - Sum(min.cl_ints), cmb.ceiling, partn_posns_lst, partn_moduli_lst);
 
+
 	for mod_sum in mod_sums_lst do
 		lst := BuildList(mod_sum, partn_ceiling_lst, len);
 		base_lst := ShallowCopy(lst);
