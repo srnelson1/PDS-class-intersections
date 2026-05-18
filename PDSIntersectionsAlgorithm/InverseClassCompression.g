@@ -1,24 +1,3 @@
-Read("FilterClassIntersections.g");
-
-SelfInverseCombModuli := function(pds_data, cmb)
-	local
-	idx_inv_cls_lst,
-	ord_2_cls_lst,
-	i;
-
-	idx_inv_cls_lst := IndexInverseClassList(pds_data.cls);
-	ord_2_cls_lst := FiltrationEvenOrderList(pds_data);
-
-	for i in [1..Length(idx_inv_cls_lst)] do #Weird mixed indexing in this function. Probably a serious bug
-		if (idx_inv_cls_lst[i][1] = idx_inv_cls_lst[i][2]) and (ord_2_cls_lst[i] = false) then
-			if cmb.min_cl_ints[i] mod 2 = 0 and cmb.moduli[i] mod 2 = 1 then 
-				cmb.moduli[i] := 2*cmb.moduli[i];
-			fi;
-		fi;
-	od;
-end;
-
-####################################################################################################################
 
 IndexInverseClassList := function(cls)
 	local
@@ -36,7 +15,7 @@ IndexInverseClassList := function(cls)
 
 		inv_cl := Filtered(cls, x -> Inverse( reps[i] ) in x)[1];
 		
-		Append(idx_inv_cls_lst, [ [Position(cls, inv_cl), Position(cls, cl)] ]);
+		Add(idx_inv_cls_lst, [Position(cls, inv_cl), Position(cls, cl)]);
 		Sort( Last(idx_inv_cls_lst) );
 	od;
 
@@ -88,18 +67,20 @@ CombineCharMat := function(idx_inv_cls_lst, char_mat)
 	return TransposedMat(cmb_char_mat);
 end;
 
-BuildCmb := function(pds_data, ceiling, min)
+BuildCmb := function(pds_data, min)
 	local
-	char_mat,
 	idx_inv_cls_lst,
-	x;
+	min_cl_ints,
+	ceiling;
 
 	idx_inv_cls_lst := IndexInverseClassList(pds_data.cls);
+	min_cl_ints := CombineInverseClasses(idx_inv_cls_lst, min.cl_ints);
+	ceiling := CombineInverseClasses(idx_inv_cls_lst, List(pds_data.cls, Size) ) - min_cl_ints;
 
 	return  rec(
 			idx_inv_cls_lst  := idx_inv_cls_lst,
-			min_cl_ints := CombineInverseClasses(idx_inv_cls_lst, min.cl_ints), 
-			ceiling := CombineInverseClasses(idx_inv_cls_lst, ceiling),
+			ceiling := ceiling,
+			min_cl_ints := min_cl_ints,
 			moduli := CombineInverseClasses(idx_inv_cls_lst, min.moduli), 
 			char_mat := CombineCharMat(idx_inv_cls_lst, pds_data.char_mat),
 			len := Length(idx_inv_cls_lst)

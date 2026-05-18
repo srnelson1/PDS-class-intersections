@@ -1,8 +1,28 @@
-FiltrationEvenOrderList  := function(pds_data)
-	local x;
 
-	return List(pds_data.cls, x -> Order(Representative(x)) = 2);
+FilterMinimalIntersection := function(pds_data, min)
+	local  phi_1, sum_cl_ints, row;
+
+	phi_1 := pds_data.char_mat * min.cl_ints;
+	phi_1 := phi_1 * List(pds_data.char_mat, row -> row[1]); #This corresponds to calculating Phi(1).
+
+	sum_cl_ints := Sum(min.cl_ints);
+
+	if sum_cl_ints > pds_data.k then
+		return false;
+
+	elif (sum_cl_ints - pds_data.k) mod pds_data.cp_delta <> 0 then
+		return false;
+
+	elif phi_1 mod pds_data.cp_delta <> 0 then
+		return false;
+	fi;
+
+	return true;
 end;
+
+
+####################################################################################################################
+
 
 FiltrationMatrix := function(pds_data, cmb)
 	local mat, i;
@@ -65,38 +85,6 @@ FilterOutput := function(fltr, cl_ints)
 			return false;
 		fi;
 	od;
-
-	return true;
-end;
-
-
-FilterInverseClasses := function(pds_data, cmb, cl_ints)
-	local 
-	idx_inv_cls,
-	ord_2_cls_lst,
-	i;
-
-	ord_2_cls_lst := FiltrationEvenOrderList(pds_data);
-
-	for i in [2..Length(cmb.idx_inv_cls_lst)] do
-		idx_inv_cls := cmb.idx_inv_cls_lst[i];
-
-		if idx_inv_cls[1] = idx_inv_cls[2] and ord_2_cls_lst[i] = false then
-			if (cl_ints[i] + cmb.min_cl_ints[i]) mod 2 <> 0 then
-				return false;
-			fi;
-		fi;
-	od;
-
-	return true;
-end;
-
-
-
-ValidClassIntersection := function(pds_data, fltr, cmb, cl_ints)
-	if not FilterOutput(fltr, cl_ints) then
-		return false;
-	fi;
 
 	return true;
 end;

@@ -1,3 +1,4 @@
+Read("Filter.g");
 
 ####################################################################################################################
 
@@ -18,7 +19,7 @@ ClassesOutsideN := function(pds_data)
 		order := Maximum( List(lin_char, x -> Conductor(x)) );
 
 		if Gcd(order, pds_data.theta1 - pds_data.theta2) = 1 then
-			Append(cp_lin_chars, [lin_char]);
+			Add(cp_lin_chars, lin_char);
 		fi;
 	od;
 
@@ -28,7 +29,7 @@ ClassesOutsideN := function(pds_data)
 		idx := Position(pds_data.cls, cl);
 
 		if List(cp_lin_chars, x -> x[idx]) <> ones then
-			Append(extN_cls, [cl]);
+			Add(extN_cls, cl);
 		fi;
 	od;
 	
@@ -77,7 +78,7 @@ ExtNClIntersections := function(pds_data)
 			extN_ints[i] := Int(extN_ints[i]);
 		od;
 
-		Append(extN_ints_lst, [extN_ints]);
+		Add(extN_ints_lst, extN_ints);
 	od;
 
 	extN_ints_lst := Unique(extN_ints_lst);
@@ -165,36 +166,13 @@ ModularClassIntersections := function(pds_data)
 
 	primes_delta := PrimePowersInt(pds_data.theta1-pds_data.theta2);
 	prime_powers_delta := List([1.. Length(primes_delta)/2], i -> primes_delta[2*i - 1] ^ primes_delta[2*i]);
-	Append(prime_powers_delta, [1]);
+	Add(prime_powers_delta, 1);
 
 	cl_mod_q_ints_rec := QModularClassRecord(pds_data, prime_powers_delta, num_cls);
 
 	modular := ModularValues(pds_data, cl_mod_q_ints_rec, prime_powers_delta, num_cls);
 
 	return modular;
-end;
-
-####################################################################################################################
-
-IsValidMinimalIntersection := function(pds_data, min)
-	local  phi_1, sum_cl_ints, row;
-
-	phi_1 := pds_data.char_mat * min.cl_ints;
-	phi_1 := phi_1 * List(pds_data.char_mat, row -> row[1]); #This corresponds to calculating Phi(1).
-
-	sum_cl_ints := Sum(min.cl_ints);
-
-	if sum_cl_ints > pds_data.k then
-		return false;
-
-	elif (sum_cl_ints - pds_data.k) mod pds_data.cp_delta <> 0 then
-		return false;
-
-	elif phi_1 mod pds_data.cp_delta <> 0 then
-		return false;
-	fi;
-
-	return true;
 end;
 
 ####################################################################################################################
@@ -218,7 +196,7 @@ MinimalIntersectionsList := function(pds_data, modular, extN_ints_lst)
 			fi;
 		od;
 
-		Append(min_lst, [min]);
+		Add(min_lst, min);
 	od;
 
 	return min_lst;
@@ -237,7 +215,7 @@ MinimalIntersections := function(pds_data)
 	extN_ints_lst := ExtNClIntersections(pds_data);
 
 	min_lst := MinimalIntersectionsList(pds_data, modular, extN_ints_lst);
-	min_lst := Filtered(min_lst, min -> IsValidMinimalIntersection(pds_data, min) );
+	min_lst := Filtered(min_lst, min -> FilterMinimalIntersection(pds_data, min) );
 	
 	return min_lst;
 end;
