@@ -88,6 +88,39 @@ end;
 
 ####################################################################################################################
 
+
+SelfInverseClassList := function(cls)
+	local
+	cl;
+
+	return List(cls, cl -> Representative(cl)^-1 in cl);
+end;
+
+FixParity := function(modular, i)
+	if modular.vals[i] mod 2 <> 0 then
+		if modular.cl_ints[i] mod 2 <> 0 then
+			modular.cl_ints[i] := modular.cl_ints[i] + modular.vals[i];
+		fi;
+
+		modular.vals[i] := modular.vals[i] * 2;
+	fi;
+end;
+
+ModularParityAdjust := function(is_self_inv_cl, modular)
+	local
+	i;
+	
+	for i in [2.. Length(modular.vals)] do
+		if is_self_inv_cl[i] then
+			FixParity(modular, i);
+		fi;
+	od;
+end;
+
+
+####################################################################################################################
+
+
 ModularIntersections := function(centralizer_sizes,  k, theta2, q)
 	local 
 	cl_mod_q_ints, #class ints mod q
@@ -171,6 +204,7 @@ ModularClassIntersections := function(pds_data)
 	cl_mod_q_ints_rec := QModularClassRecord(pds_data, prime_powers_delta, num_cls);
 
 	modular := ModularValues(pds_data, cl_mod_q_ints_rec, prime_powers_delta, num_cls);
+	ModularParityAdjust(SelfInverseClassList(pds_data.cls), modular);
 
 	return modular;
 end;
@@ -208,14 +242,15 @@ MinimalIntersections := function(pds_data)
 	modular,
 	extN_ints_lst,
 	min, min_lst,
-	i;
+	is_self_inv_cl;
 
 	modular := ModularClassIntersections(pds_data);
-	#TODO: ADD EVEN ORDER MODULUS CHECKING
 	extN_ints_lst := ExtNClIntersections(pds_data);
 
 	min_lst := MinimalIntersectionsList(pds_data, modular, extN_ints_lst);
-	min_lst := Filtered(min_lst, min -> FilterMinimalIntersection(pds_data, min) );
+
+	is_self_inv_cl := SelfInverseClassList(pds_data.cls);
+	min_lst := Filtered(min_lst, min -> FilterMinimalIntersection(pds_data, min, is_self_inv_cl));
 	
 	return min_lst;
 end;
