@@ -3,11 +3,14 @@ Read("SearchClassIntersections.g");
 Read("MinimalIntersections.g");
 
 
-BuildPDSData := function(group, v, k, lambda, mu)
+BuildPDSData := function(group, params)
 	local
+	v, k, lambda, mu,
 	char_table, irr,
 	theta1, theta2,
 	row, x;
+
+	v := params[1]; k := params[2]; lambda := params[3]; mu := params[4];
 
 	if IsList(group) then
 		group := SmallGroup(group);
@@ -34,7 +37,7 @@ BuildPDSData := function(group, v, k, lambda, mu)
 end;
 
 #Finds possible PDS Class Intersection of a particular group.
-PDSClassIntersections := function(group, v, k, lambda, mu)
+PDSClassIntersections := function(group, params)
 	local
 	pds_data,
 	min_lst, min,
@@ -44,12 +47,13 @@ PDSClassIntersections := function(group, v, k, lambda, mu)
 		group := SmallGroup(group);
 	fi;
 
-	if not STRestriction(group, v, k, lambda, mu) then
+	if not STRestriction(group, params) then
 		return [];
 	fi;
 
-	pds_data := BuildPDSData(group, v, k, lambda, mu);
+	pds_data := BuildPDSData(group, params);
 	min_lst := MinimalIntersections(pds_data);
+
 
 	cl_ints_lst := [];
 
