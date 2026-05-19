@@ -7,9 +7,6 @@ Read("Filter.g");
 
 
 
-####################################################################################################################
-
-
 MakeSpaceList := function(partn_ceiling, len)
 	local
 	partn_space_lst,
@@ -33,65 +30,6 @@ MakeSpaceList := function(partn_ceiling, len)
 	return partn_space_lst;
 end;
 
-
-####################################################################################################################
-
-NormalizeModSums := function(mod_sums_lst, partn_moduli_lst)
-	local i, j;
-
-	for i in [1.. Length(mod_sums_lst)] do
-		for j in [1.. Length(mod_sums_lst[i])] do
-			mod_sums_lst[i][j] := Int( mod_sums_lst[i][j] / partn_moduli_lst[j] );
-		od;
-	od;
-
-	return mod_sums_lst;
-end;
-
-StackCeiling := function(ceiling, partn_posns_lst, num_partns)
-	local stack_ceiling, i;
-
-	stack_ceiling := EmptyPlist(num_partns);
-
-	for i in [1.. num_partns] do
-		stack_ceiling[i] := Sum( ceiling{partn_posns_lst[i]} );
-	od;
-
-	return stack_ceiling;
-end;
-
-ModSumsOfK := function(k, cmb, partn)
-	local
-	num_partns,
-	mod_sums_lst,
-	lst, stack_partn,
-	zeroes,
-	finished;
-
-	mod_sums_lst := [];
-
-	num_partns := Length(partn.moduli_lst);
-	zeroes := ListWithIdenticalEntries(num_partns, 0);
-
-	stack_partn := rec(
-		ceiling   := StackCeiling(cmb.ceiling, partn.posns_lst, num_partns),
-		space_lst := MakeSpaceList(StackCeiling(cmb.ceiling, partn.posns_lst, num_partns), num_partns)
-	);
-	lst := ShallowCopy(zeroes);
-	PlaceStack(lst, stack_partn, k, 1, num_partns);
-
-	finished := false;
-
-	while not finished do
-		if lst mod partn.moduli_lst = zeroes then
-			Add(mod_sums_lst, ShallowCopy(lst));
-		fi;
-
-		finished := IteratePartition(lst, stack_partn, num_partns);
-	od;
-
-	return NormalizeModSums(mod_sums_lst, partn.moduli_lst);
-end;
 
 ####################################################################################################################
 
@@ -168,7 +106,62 @@ BuildBaseList := function(mod_sum, partn, len)
 	return lst;
 end;
 
-####################################################################################################################
+NormalizeModSums := function(mod_sums_lst, partn_moduli_lst)
+	local i, j;
+
+	for i in [1.. Length(mod_sums_lst)] do
+		for j in [1.. Length(mod_sums_lst[i])] do
+			mod_sums_lst[i][j] := Int( mod_sums_lst[i][j] / partn_moduli_lst[j] );
+		od;
+	od;
+
+	return mod_sums_lst;
+end;
+
+StackCeiling := function(ceiling, partn_posns_lst, num_partns)
+	local stack_ceiling, i;
+
+	stack_ceiling := EmptyPlist(num_partns);
+
+	for i in [1.. num_partns] do
+		stack_ceiling[i] := Sum( ceiling{partn_posns_lst[i]} );
+	od;
+
+	return stack_ceiling;
+end;
+
+ModSumsOfK := function(k, cmb, partn)
+	local
+	num_partns,
+	mod_sums_lst,
+	lst, stack_partn,
+	zeroes,
+	finished;
+
+	mod_sums_lst := [];
+
+	num_partns := Length(partn.moduli_lst);
+	zeroes := ListWithIdenticalEntries(num_partns, 0);
+
+	stack_partn := rec(
+		ceiling   := StackCeiling(cmb.ceiling, partn.posns_lst, num_partns),
+		space_lst := MakeSpaceList(StackCeiling(cmb.ceiling, partn.posns_lst, num_partns), num_partns)
+	);
+	lst := ShallowCopy(zeroes);
+	PlaceStack(lst, stack_partn, k, 1, num_partns);
+
+	finished := false;
+
+	while not finished do
+		if lst mod partn.moduli_lst = zeroes then
+			Add(mod_sums_lst, ShallowCopy(lst));
+		fi;
+
+		finished := IteratePartition(lst, stack_partn, num_partns);
+	od;
+
+	return NormalizeModSums(mod_sums_lst, partn.moduli_lst);
+end;
 
 SearchClassIntersections := function(pds_data, fltr, cmb, partn, min)
 	local
@@ -189,7 +182,9 @@ SearchClassIntersections := function(pds_data, fltr, cmb, partn, min)
 	return cl_ints_lst;
 end;
 
+
 ####################################################################################################################
+
 
 MultiplyModulus := function(cl_ints, cmb)
 	local i;
@@ -208,6 +203,10 @@ RebuildClassIntersections := function(pds_data, cmb, min, cl_ints_lst)
 
 	return cl_ints_lst;
 end;
+
+
+####################################################################################################################
+
 
 AllClassIntersections := function(pds_data, min)
 	local
