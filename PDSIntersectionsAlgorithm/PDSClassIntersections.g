@@ -10,12 +10,11 @@ BuildPDSData := function(group, params)
 	theta1, theta2,
 	row, x;
 
-	v := params[1]; k := params[2]; lambda := params[3]; mu := params[4];
-
 	if IsList(group) then
 		group := SmallGroup(group);
 	fi;
 
+	v := params[1]; k := params[2]; lambda := params[3]; mu := params[4];
 	theta1 := (lambda - mu + RootInt((lambda - mu)^2 + 4*(k - mu), 2))/2;
 	theta2 := (lambda - mu - RootInt((lambda - mu)^2 + 4*(k - mu), 2))/2;
 
