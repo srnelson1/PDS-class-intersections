@@ -1,13 +1,31 @@
 
+IsParityValidMin := function(min, is_self_inv_cl)
+	local i;
+
+	for i in [2..Length(min.moduli)] do
+		if is_self_inv_cl[i] then
+			if min.moduli[i] mod 2 = 0 and min.cl_ints[i] mod 2 <> 0 then
+				return false;
+			fi;
+		fi;
+	od;
+
+	return true;
+end;
+
+
 FilterMinimalIntersection := function(pds_data, min, is_self_inv_cl)
-	local  phi_1, sum_cl_ints, row, i;
+	local phi_1, sum_cl_ints, row;
 
 	phi_1 := pds_data.char_mat * min.cl_ints;
 	phi_1 := phi_1 * List(pds_data.char_mat, row -> row[1]); #This corresponds to calculating Phi(1).
 
 	sum_cl_ints := Sum(min.cl_ints);
 
-	if sum_cl_ints > pds_data.k then
+	if ForAny([1..Length(pds_data.cls)], i -> min.cl_ints[i] > Size(pds_data.cls[i])) then
+		return false;
+
+	elif sum_cl_ints > pds_data.k then
 		return false;
 
 	elif (sum_cl_ints - pds_data.k) mod pds_data.cp_delta <> 0 then
@@ -15,16 +33,10 @@ FilterMinimalIntersection := function(pds_data, min, is_self_inv_cl)
 
 	elif phi_1 mod pds_data.cp_delta <> 0 then
 		return false;
+
+	elif not IsParityValidMin(min, is_self_inv_cl) then
+		return false;
 	fi;
-
-	for i in [2.. Length(min.moduli)] do
-		if is_self_inv_cl[i] then
-			if (min.moduli[i] mod 2 = 0) and (min.cl_ints[i] mod 2 <> 0) then
-				return false;
-			fi;
-		fi;
-	od;
-
 
 
 	return true;
